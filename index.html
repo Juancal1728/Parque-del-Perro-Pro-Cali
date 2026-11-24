@@ -961,6 +961,50 @@ body::before{background:var(--p-paper)}
 @media (max-width:900px){.dfoot .fgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:640px){.dfoot .fgrid>.fqr{grid-column:auto}.fqr a{width:120px}}
 
+/* ronda 8: simulador de viabilidad */
+.calc{background:var(--p-ink);color:rgba(250,250,249,.82);border-radius:6px;padding:clamp(22px,3.4vw,40px)}
+.calc .chead{max-width:72ch;margin-bottom:26px}
+.calc h3{font-family:var(--f-serif)!important;font-weight:400!important;font-size:clamp(28px,3vw,36px);letter-spacing:-.02em;color:#fff;margin-bottom:10px}
+.calc .calc-sub{font-size:15.5px;line-height:1.6;color:rgba(250,250,249,.74);margin:0}
+.calc .calc-sub b{color:#fff;font-weight:600}
+.cgroups{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:14px}
+.cgroups fieldset{margin:0;border:1px solid rgba(250,250,249,.12);border-radius:6px;padding:18px 18px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px 14px;align-content:start;min-width:0}
+.cgroups fieldset.wide{grid-column:1/-1}
+.cgroups legend{display:flex;align-items:center;gap:10px;padding:0 6px;margin-left:-6px;font-weight:600;font-size:15px;color:#fff}
+.cgroups legend i{font-style:normal;width:24px;height:24px;border-radius:50%;background:var(--p-green-lt);color:var(--p-ink);display:grid;place-items:center;font-size:12.5px;font-weight:700}
+.cgroups legend small{font-weight:400;color:rgba(250,250,249,.55);font-size:13px}
+.calc label{display:grid;gap:7px;font-size:13.5px;color:rgba(250,250,249,.82);align-content:start}
+.calc label small{font-size:12px;line-height:1.4;color:rgba(250,250,249,.55)}
+.calc label small.fmt{color:var(--p-green-lt);font-variant-numeric:tabular-nums}
+.calc input[type=number]{background:#0c0a09;border:1px solid rgba(250,250,249,.16);color:#fff;border-radius:4px;padding:11px 12px;font:500 15.5px var(--f-body);font-variant-numeric:tabular-nums;width:100%;min-height:44px}
+.calc input[type=number]:focus{outline:2px solid var(--p-green-lt);outline-offset:1px}
+.calc input[type=range]{accent-color:var(--p-green-lt);width:100%;min-height:28px}
+.calc output{font-weight:600;color:#fff;font-variant-numeric:tabular-nums}
+.cres{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:14px;margin-top:14px}
+.cverdict{background:#0f3d26;border:1px solid rgba(143,220,174,.35);border-radius:6px;padding:22px;display:flex;flex-direction:column;gap:10px}
+.cverdict .vt{font-family:var(--f-serif);font-size:clamp(28px,3vw,38px);line-height:1.05;color:#fff;letter-spacing:-.02em}
+.cverdict .vt::before{content:"✓ ";color:var(--p-green-lt)}
+.cverdict p{margin:0;font-size:15px;line-height:1.55;color:rgba(250,250,249,.86)}
+.cverdict .bar{position:relative;display:block;height:8px;border-radius:4px;background:rgba(250,250,249,.14);overflow:hidden;margin-top:6px;left:auto;top:auto;bottom:auto;width:auto;transform:none;box-shadow:none}
+.cverdict .bar em{display:block;height:100%;width:0;background:var(--p-green-lt);border-radius:4px;transition:width .3s var(--ease-out)}
+.cverdict .bar s{position:absolute;left:50%;top:-2px;bottom:-2px;width:2px;background:#fff;opacity:.7}
+.cverdict small{font-size:12.5px;color:rgba(250,250,249,.62)}
+.cverdict small b{color:#fff;font-weight:600}
+.cverdict.no{background:#3a1616;border-color:rgba(255,138,138,.35)}
+.cverdict.no .vt::before{content:"✕ ";color:#ff9b9b}
+.cverdict.no .bar em{background:#ff9b9b}
+.cnums{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:rgba(250,250,249,.1);border:1px solid rgba(250,250,249,.1);border-radius:6px;overflow:hidden}
+.cnums>div{background:var(--p-ink);padding:16px 18px;min-width:0;display:flex;flex-direction:column;gap:4px}
+.cnums>div:last-child{grid-column:1/-1}
+.cnums dt{font-size:12.5px;color:rgba(250,250,249,.62)}
+.cnums dd{margin:0;font-size:20px;font-weight:600;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.cnums dd.pos{color:var(--p-green-lt)}.cnums dd.neg{color:#ff9b9b}
+.cnums small{font-size:12px;line-height:1.4;color:rgba(250,250,249,.5)}
+.cnote{margin:16px 0 0;font-size:12.5px;line-height:1.5;color:rgba(250,250,249,.5);max-width:90ch}
+@media (max-width:900px){.cgroups,.cres{grid-template-columns:1fr}}
+@media (max-width:520px){.cnums{grid-template-columns:1fr}.cnums>div:last-child{grid-column:auto}.cgroups fieldset{grid-template-columns:1fr}}
+.cverdict .bar{margin-top:auto}
+
 @media (max-width:900px){.dhero::before{background-image:url(img/04-antes-900.webp)}}
 </style>
 </head>
@@ -1278,30 +1322,45 @@ body::before{background:var(--p-paper)}
         </div>
         <ul class="keys k5 fin" aria-label="Indicadores financieros de viabilidad">
           <li><b>Costo por m²</b><span>Se calcula en el simulador con el área intervenida.</span></li>
-          <li><b>Mantenimiento anual</b><span>Porcentaje de la obra que cuesta sostener el parque cada año.</span></li>
-          <li><b>Ingreso por actividades</b><span>Aportes de locales y eventos como Borondo.</span></li>
+          <li><b>Mantenimiento anual</b><span>Lo que cuesta sostener el parque cada año, como porcentaje de la obra.</span></li>
+          <li><b>Ingreso por actividades</b><span>Aportes de locales, licencias de terraza y eventos como Borondo.</span></li>
           <li><b>Inversión mixta</b><span>Recursos públicos y privados bajo la Ley 1508 de 2012.</span></li>
           <li><b>Retorno social</b><span>Salud, encuentro y comercio que gana la ciudad.</span></li>
         </ul>
         <div class="calc" id="calc">
-          <h3>Simulador de viabilidad</h3>
-          <p class="calc-sub">Los supuestos son editables y no son cifras oficiales. Reemplázalos con el presupuesto real.</p>
-          <div class="crow">
-            <label>Área intervenida (m²)<input type="number" id="cArea" value="20100" min="1000" step="100"></label>
-            <label>Costo de obra por m² (COP)<input type="number" id="cM2" value="1200000" min="0" step="50000"></label>
-            <label>Mantenimiento anual (% de la obra)<input type="range" id="cMant" value="4" min="1" max="10" step="0.5"><output id="oMant" for="cMant">4 %</output></label>
-            <label>Locales que aportan<input type="number" id="cLoc" value="60" min="0" step="1"></label>
-            <label>Aporte mensual por local (COP)<input type="number" id="cAp" value="250000" min="0" step="10000"></label>
-            <label>Eventos al año (tipo Borondo)<input type="number" id="cEv" value="12" min="0" step="1"></label>
-            <label>Ingreso neto por evento (COP)<input type="number" id="cEvI" value="8000000" min="0" step="500000"></label>
+          <div class="chead">
+            <h3>Simulador de viabilidad</h3>
+            <p class="calc-sub">La pregunta es simple: <b>¿lo que genera el propio parque alcanza para mantenerlo?</b> La obra la cofinancian la Alcaldía y un socio privado (alianza público-privada, Ley 1508 de 2012); el mantenimiento se paga con aportes de los locales, licencias de terraza y eventos. Mueve los supuestos y mira el resultado.</p>
           </div>
-          <div class="cout" aria-live="polite">
-            <div><span>Inversión inicial</span><b id="rInv">—</b></div>
-            <div><span>Mantenimiento anual</span><b id="rMan">—</b></div>
-            <div><span>Ingresos anuales</span><b id="rIng">—</b></div>
-            <div><span>Años para recuperar la inversión con el excedente</span><b id="rPay">—</b></div>
-            <div class="hl"><span>Mantenimiento cubierto por los ingresos</span><b id="rCob">—</b><i class="bar"><em id="rBar"></em></i></div>
+          <div class="cgroups">
+            <fieldset><legend><i>1</i>La obra <small>se paga una vez</small></legend>
+              <label>Área intervenida (m²)<input type="number" id="cArea" value="20100" min="0" step="100" inputmode="numeric"><small class="fmt" data-for="cArea" data-u=" m²"></small></label>
+              <label>Costo promedio por m² (COP)<input type="number" id="cM2" value="450000" min="0" step="10000" inputmode="numeric"><small class="fmt" data-for="cM2"></small></label>
+              <label>Parte que pone el sector público<input type="range" id="cPub" value="70" min="0" max="100" step="5"><output id="oPub" for="cPub">70 %</output><small>El resto lo pone el socio privado y lo recupera con el saldo anual.</small></label>
+            </fieldset>
+            <fieldset><legend><i>2</i>Mantenerla <small>cada año</small></legend>
+              <label>Mantenimiento anual (% de la obra)<input type="range" id="cMant" value="1.5" min="0.5" max="6" step="0.5"><output id="oMant" for="cMant">1,5 %</output><small>Zonas verdes, aseo, residuos, iluminación y seguridad.</small></label>
+            </fieldset>
+            <fieldset class="wide"><legend><i>3</i>Lo que genera el parque <small>cada año</small></legend>
+              <label>Locales que aportan<input type="number" id="cLoc" value="60" min="0" step="1" inputmode="numeric"><small>En Borondo participaron cerca de 60 restaurantes.</small></label>
+              <label>Aporte mensual por local (COP)<input type="number" id="cAp" value="300000" min="0" step="10000" inputmode="numeric"><small class="fmt" data-for="cAp"></small></label>
+              <label>Terraza con licencia (m²)<input type="number" id="cTer" value="1800" min="0" step="50" inputmode="numeric"><small class="fmt" data-for="cTer" data-u=" m²"></small></label>
+              <label>Tarifa mensual por m² de terraza (COP)<input type="number" id="cTerT" value="12000" min="0" step="1000" inputmode="numeric"><small class="fmt" data-for="cTerT"></small></label>
+              <label>Eventos al año (tipo Borondo)<input type="number" id="cEv" value="12" min="0" step="1" inputmode="numeric"></label>
+              <label>Ingreso neto por evento (COP)<input type="number" id="cEvI" value="8000000" min="0" step="500000" inputmode="numeric"><small class="fmt" data-for="cEvI"></small></label>
+            </fieldset>
           </div>
+          <div class="cres" aria-live="polite">
+            <div class="cverdict" id="rVer"><span class="vt" id="rVerT">—</span><p id="rVerP"></p><i class="bar" aria-hidden="true"><em id="rBar"></em><s></s></i><small><b id="rCob">—</b> del mantenimiento cubierto por los ingresos del parque</small></div>
+            <dl class="cnums">
+              <div><dt>Obra total</dt><dd id="rInv">—</dd><small id="rInvS"></small></div>
+              <div><dt>Mantenimiento por año</dt><dd id="rMan">—</dd></div>
+              <div><dt>Ingresos por año</dt><dd id="rIng">—</dd><small id="rIngS"></small></div>
+              <div><dt>Saldo por año</dt><dd id="rSal">—</dd><small>Ingresos menos mantenimiento</small></div>
+              <div><dt>El socio privado recupera su parte en</dt><dd id="rPay">—</dd><small>Con el saldo anual, sin intereses</small></div>
+            </dl>
+          </div>
+          <p class="cnote">Supuestos del equipo para la presentación, no cifras oficiales ni cotizaciones. El costo por m² es un promedio: no toda el área es obra nueva (hay adoquín, jardines y zonas que solo se señalizan).</p>
         </div>
       </div>
       <div class="tabp" data-panel="pol" id="panel-pol" role="tabpanel" aria-labelledby="tab-pol" hidden>
@@ -1570,12 +1629,26 @@ window.PUNTOS = [
     'Obra fija: piso a un solo nivel, núcleo ecológico, islas de residuos e iluminación. El parque funciona 24/7 con reglas claras.'];
   const tT = $('#stepTxt'); const tSet = i => { $$('#steps button').forEach((b, j) => { b.classList.toggle('on', j === i); b.classList.toggle('done', j < i); b.setAttribute('aria-pressed', j === i); }); tT.textContent = ST[i]; };
   $$('#steps button').forEach(b => b.addEventListener('click', () => tSet(+b.dataset.s))); tSet(0);
-  // simulador
-  const f = n => '$ ' + Math.round(n).toLocaleString('es-CO'), g = id => +document.getElementById(id).value || 0;
-  function calc() { const inv = g('cArea') * g('cM2'), man = inv * g('cMant') / 100, ing = g('cLoc') * g('cAp') * 12 + g('cEv') * g('cEvI');
-    $('#oMant').textContent = g('cMant') + ' %'; $('#rInv').textContent = f(inv); $('#rMan').textContent = f(man) + ' / año'; $('#rIng').textContent = f(ing) + ' / año';
-    const cob = man ? ing / man * 100 : 0; $('#rCob').textContent = Math.round(cob) + ' %'; $('#rBar').style.width = Math.min(100, cob) + '%';
-    const ex = ing - man; $('#rPay').textContent = ex > 0 ? (inv / ex).toFixed(1) + ' años' : 'No se recupera con estos supuestos'; }
+  // simulador: ¿lo que genera el parque alcanza para mantenerlo?
+  const f = n => '$ ' + Math.round(n).toLocaleString('es-CO'), g = id => Math.max(0, +document.getElementById(id).value || 0);
+  const big = n => { const a = Math.abs(n); return a >= 1e9 ? '$ ' + (n / 1e9).toLocaleString('es-CO', { maximumFractionDigits: 2 }) + ' mil millones' : a >= 1e6 ? '$ ' + Math.round(n / 1e6).toLocaleString('es-CO') + ' millones' : f(n); };
+  function calc() {
+    const inv = g('cArea') * g('cM2'), pub = inv * g('cPub') / 100, priv = inv - pub, man = inv * g('cMant') / 100;
+    const iLoc = g('cLoc') * g('cAp') * 12, iTer = g('cTer') * g('cTerT') * 12, iEv = g('cEv') * g('cEvI'), ing = iLoc + iTer + iEv, sal = ing - man;
+    $('#oPub').textContent = g('cPub') + ' %'; $('#oMant').textContent = g('cMant').toLocaleString('es-CO') + ' %';
+    $$('#calc .fmt').forEach(s => { const v = g(s.dataset.for); s.textContent = s.dataset.u ? v.toLocaleString('es-CO') + s.dataset.u : f(v); });
+    $('#rInv').textContent = big(inv); $('#rInvS').textContent = 'Pública ' + big(pub) + ' · privada ' + big(priv);
+    $('#rMan').textContent = big(man); $('#rIng').textContent = big(ing);
+    $('#rIngS').textContent = 'Locales ' + big(iLoc) + ' · terrazas ' + big(iTer) + ' · eventos ' + big(iEv);
+    $('#rSal').textContent = (sal < 0 ? '− ' : '+ ') + big(Math.abs(sal)); $('#rSal').className = sal < 0 ? 'neg' : 'pos';
+    const cob = man ? ing / man * 100 : (ing ? 999 : 0); $('#rCob').textContent = Math.round(cob).toLocaleString('es-CO') + ' %';
+    $('#rBar').style.width = Math.min(100, cob / 2) + '%';
+    const ok = sal >= 0, V = $('#rVer'); V.classList.toggle('no', !ok);
+    $('#rVerT').textContent = ok ? 'Sí se sostiene' : 'Todavía no se sostiene';
+    $('#rVerP').textContent = ok ? 'Lo que genera el parque paga su mantenimiento' + (man ? ' ' + (ing / man).toLocaleString('es-CO', { maximumFractionDigits: 1 }) + ' veces' : '') + ' y quedan ' + big(sal) + ' al año para devolver la inversión privada o mejorar el parque.'
+      : 'Faltan ' + big(-sal) + ' al año. Sube el aporte de los locales, las licencias de terraza o los eventos, o baja el costo de mantenimiento.';
+    $('#rPay').textContent = priv <= 0 ? 'No aplica: la obra es pública' : sal > 0 ? (priv / sal).toLocaleString('es-CO', { maximumFractionDigits: 1 }) + ' años' : 'No se recupera';
+  }
   $$('#calc input').forEach(i => i.addEventListener('input', calc)); calc();
   // contadores y aparición
   const io = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; e.target.classList.add('in');
