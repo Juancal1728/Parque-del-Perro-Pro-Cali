@@ -4,7 +4,7 @@ Propuesta de urbanismo sostenible para la Carrera 34 y la rotonda del Parque del
 
 **Sitio:** https://juancal1728.github.io/Parque-del-Perro-Pro-Cali/
 
-La página reúne la maqueta 3D del bulevar (de Carulla a la rotonda) con la comparación hoy/propuesta de cada punto, y el dossier de la propuesta: diagnóstico, antecedentes, intervención, zonificación, sistemas, componente ambiental, disciplinas (biología, finanzas y ciencia política), ruta de implementación, impactos y fuentes.
+La página reúne la maqueta 3D del bulevar (de Carulla a la rotonda) con la comparación hoy/propuesta de cada punto, y el dossier de la propuesta: diagnóstico, antecedentes, intervención, zonificación, sistemas, componente ambiental, disciplinas (biología, finanzas y ciencia política, ingeniería de sistemas y economía), ruta de implementación, impactos y fuentes.
 
 ## Archivos
 
@@ -35,4 +35,4 @@ GitHub Pages publica la rama `main` desde la raíz (Settings → Pages → Deplo
 
 ## Créditos
 
-Equipo: Luna Villafañe Ardila y Camila Solarte. Trazado urbano © colaboradores de OpenStreetMap (ODbL).
+Logo: silueta de la estatua de Teddy, trazada a partir de la foto "30-029 Parque Perro cali.JPG" de Rafaelpalacios en Wikimedia Commons (CC BY-SA 3.0). Trazado urbano © colaboradores de OpenStreetMap (ODbL).
