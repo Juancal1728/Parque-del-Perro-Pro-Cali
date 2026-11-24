@@ -1,0 +1,1109 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Parque del Perro 24/7</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Parque del Perro 24/7: propuesta urbana sostenible para la Carrera 34 y la rotonda del Parque del Perro, Cali. Recorrido 3D, diagnóstico, zonificación, ambiente, finanzas y gobernanza.">
+<meta name="theme-color" content="#0e2619">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_CO">
+<meta property="og:title" content="Parque del Perro 24/7 · Propuesta urbana para Cali">
+<meta property="og:description" content="De zona de paso a espacio de encuentro: recorrido 3D, diagnóstico y propuesta para la Carrera 34 y la rotonda del Parque del Perro.">
+<meta property="og:image" content="https://juancal1728.github.io/Parque-del-Perro-Pro-Cali/img/04-despues.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 57C14 44 5 34 5 21.5 5 12.7 11.7 6 20 6c5 0 9.3 2.5 12 6.5C34.7 8.5 39 6 44 6c8.3 0 15 6.7 15 15.5C59 34 50 44 32 57z' fill='%23e3764a'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: escena 3D a pantalla completa + panel lateral de tramos (abajo en móvil) */
+:root{
+  --ink:#f3efe6; --muted:#a9b4ad; --panel:#121a16; --panel2:#18221d; --line:rgba(255,255,255,.10);
+  --green:#3a9c66; --leaf:#8fd07a; --terra:#e3764a; --sand:#e8dccb; --sky:#cfe0ea;
+  --display:"Fraunces",Georgia,serif; --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{background:var(--panel);color:var(--ink);font-family:var(--body);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--leaf);outline-offset:2px}
+
+.app{display:grid;grid-template-columns:minmax(0,1fr) 440px;height:100vh;height:100dvh}
+
+/* ---------- escena ---------- */
+.stage{position:relative;overflow:hidden;background:linear-gradient(180deg,#b9d3e4 0%,#e9e2d4 70%)}
+#scene{position:absolute;inset:0;cursor:grab;touch-action:none} #scene:active{cursor:grabbing}
+#scene canvas{display:block;width:100%;height:100%}
+.topbar{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:max(16px,env(safe-area-inset-top,0px)) 18px 0 max(18px,env(safe-area-inset-left,0px));pointer-events:none;z-index:5}
+.brand{pointer-events:auto;display:flex;align-items:center;gap:12px;background:rgba(18,26,22,.78);backdrop-filter:blur(12px);
+  border:1px solid var(--line);border-radius:16px;padding:10px 16px}
+.brand .heart{width:30px;height:30px;border-radius:50%;background:var(--terra);display:grid;place-items:center;font-size:15px}
+.brand b{font-family:var(--display);font-size:19px;letter-spacing:.01em;display:block;line-height:1.1}
+.brand small{font-size:11.5px;color:var(--muted);letter-spacing:0;text-transform:none}
+.tools{pointer-events:auto;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.tbtn{background:rgba(18,26,22,.78);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:30px;padding:10px 16px;font-size:13.5px;font-weight:600;display:inline-flex;gap:8px;align-items:center;transition:background .2s}
+.tbtn:hover{background:rgba(30,42,36,.92)}
+.tbtn.on{background:var(--green);border-color:var(--green)}
+.tbtn.play{background:var(--terra);border-color:var(--terra)}
+
+/* marcadores HTML proyectados */
+#pins{position:absolute;inset:0;pointer-events:none;z-index:3}
+.pin{position:absolute;transform:translate(-50%,-100%);pointer-events:auto;display:flex;flex-direction:column;align-items:center;gap:0;transition:opacity .25s}
+.pin button{width:34px;height:34px;border-radius:50%;border:3px solid #fff;color:#fff;font-weight:800;font-size:14px;box-shadow:0 6px 16px rgba(0,0,0,.28);transition:transform .2s}
+.pin.a button{background:var(--green)} .pin.b button{background:var(--terra)}
+.pin .stem{width:2px;height:22px;background:#fff;opacity:.85}
+.pin .tag{position:absolute;bottom:62px;white-space:nowrap;background:rgba(18,26,22,.9);border-radius:10px;padding:6px 10px;font-size:12.5px;font-weight:600;opacity:0;transform:translateY(4px);transition:all .2s;pointer-events:none}
+.pin:hover .tag,.pin.act .tag{opacity:1;transform:none}
+.pin.act button{transform:scale(1.25)}
+.pin.far{opacity:.55}
+
+/* línea de tiempo del vuelo */
+.timeline{position:absolute;left:18px;right:18px;bottom:max(18px,env(safe-area-inset-bottom,0px));z-index:4;display:flex;align-items:center;gap:14px;
+  background:rgba(18,26,22,.82);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:18px;padding:12px 16px}
+.timeline .ticks{position:relative;flex:1;height:30px}
+.timeline input[type=range]{position:absolute;inset:0;width:100%;-webkit-appearance:none;appearance:none;background:transparent}
+.timeline input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:4px;background:linear-gradient(90deg,var(--leaf) var(--p,0%),rgba(255,255,255,.18) var(--p,0%))}
+.timeline input[type=range]::-moz-range-track{height:4px;border-radius:4px;background:rgba(255,255,255,.18)}
+.timeline input[type=range]::-moz-range-progress{height:4px;background:var(--leaf)}
+.timeline input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;margin-top:-6px;box-shadow:0 0 0 4px rgba(143,208,122,.35)}
+.timeline input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:none}
+.timeline .marks{position:absolute;left:0;right:0;top:22px;height:10px;pointer-events:none}
+.timeline .marks span{position:absolute;transform:translateX(-50%);font-size:10.5px;color:var(--muted);font-weight:700}
+.timeline .time{font-variant-numeric:tabular-nums;font-size:12.5px;color:var(--muted);min-width:76px;text-align:right}
+.hint{position:absolute;left:50%;top:84px;transform:translateX(-50%);background:rgba(18,26,22,.75);border-radius:20px;padding:7px 14px;font-size:12.5px;color:#dfe6e1;z-index:4;transition:opacity .6s;pointer-events:none}
+.loading{position:absolute;inset:0;display:grid;place-items:center;z-index:6;background:linear-gradient(180deg,#b9d3e4,#e9e2d4);color:#22302a;font-family:var(--display);font-size:22px;transition:opacity .6s}
+
+/* ---------- panel lateral ---------- */
+.panel{background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.ptabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:16px 18px 10px}
+.ptabs button{border:1px solid var(--line);background:var(--panel2);border-radius:12px;padding:10px 12px;text-align:left}
+.ptabs button b{display:block;font-size:13px}
+.ptabs button small{color:var(--muted);font-size:11.5px}
+.ptabs button.on.a{border-color:var(--green);background:rgba(58,156,102,.14)}
+.ptabs button.on.b{border-color:var(--terra);background:rgba(227,118,74,.13)}
+.pscroll{overflow-y:auto;min-height:0;flex:1;padding:4px 18px 18px}
+.pnums{display:flex;gap:5px;flex-wrap:wrap;margin:6px 0 14px}
+.pnums button{width:31px;height:31px;border-radius:50%;border:1px solid var(--line);background:var(--panel2);font-weight:700;font-size:13px}
+.pnums button.on{color:#fff;border-color:transparent}
+.pnums button.on.a{background:var(--green)} .pnums button.on.b{background:var(--terra)}
+.pnums button.all{width:auto;border-radius:20px;padding:0 12px;font-size:12px}
+.pnums button.all.on{background:#3a463f}
+
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:0;text-transform:none;color:var(--muted)}
+.ptitle{font-family:var(--display);font-size:30px;line-height:1.08;margin:6px 0 14px;text-wrap:balance}
+.compare{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:16/9;max-width:100%;background:#000;user-select:none}
+.compare img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.compare .before{clip-path:inset(0 calc(100% - var(--x,50%)) 0 0)}
+.compare .bar{position:absolute;top:0;bottom:0;left:var(--x,50%);width:2px;background:#fff;transform:translateX(-1px);pointer-events:none;box-shadow:0 0 12px rgba(0,0,0,.5)}
+.compare .knob{position:absolute;top:50%;left:var(--x,50%);transform:translate(-50%,-50%);width:38px;height:38px;border-radius:50%;background:#fff;color:#111;display:grid;place-items:center;font-size:14px;font-weight:800;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.compare input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0}
+.compare .lbl{position:absolute;top:10px;padding:5px 10px;border-radius:20px;font-size:10.5px;font-weight:700;letter-spacing:0;text-transform:none}
+.compare .l1{left:10px;background:rgba(0,0,0,.6)} .compare .l2{right:10px;background:var(--green)}
+.cmpbtns{display:flex;gap:6px;margin:10px 0 16px}
+.cmpbtns button{flex:1;border:1px solid var(--line);background:var(--panel2);border-radius:10px;padding:8px;font-size:12.5px;font-weight:600}
+.row{display:grid;gap:10px}
+.box{border-radius:14px;padding:14px 16px;border:1px solid var(--line);background:var(--panel2)}
+.box h4{font-size:11px;letter-spacing:0;text-transform:none;margin-bottom:6px}
+.box p{font-size:14.5px;line-height:1.5;color:#dde3de}
+.box.hoy h4{color:#ffb197} .box.prop h4{color:var(--leaf)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chips span{font-size:12px;border:1px solid var(--line);border-radius:20px;padding:5px 10px;color:#cfd8d2}
+.pfoot{padding:12px 18px max(14px,env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);font-size:11.5px;color:var(--muted);line-height:1.45}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:18px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+@media (max-width:900px){
+  body{overflow:auto}
+  .app{grid-template-columns:1fr;grid-template-rows:62vh auto;height:auto}
+  .panel{border-left:none;border-top:1px solid var(--line)}
+  .pscroll{overflow:visible}
+  .brand small{display:none}
+  .tools .tbtn span.t{display:none}
+  .timeline .time{display:none}
+  .hint{top:76px;font-size:11.5px}
+}
+@media (prefers-reduced-motion:reduce){.pin,.hint,.loading{transition:none}}
+
+/* motion: interruptor hoy/propuesta, tarjeta de capítulo, onda */
+.tbtn.mode .sw{width:30px;height:17px;border-radius:9px;background:rgba(255,255,255,.18);position:relative;transition:background .3s}
+.tbtn.mode .sw i{position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#fff;transition:transform .35s cubic-bezier(.2,.9,.3,1.3)}
+.tbtn.mode[aria-pressed="true"] .sw{background:var(--green)} .tbtn.mode[aria-pressed="true"] .sw i{transform:translateX(13px)}
+.chapter{position:absolute;left:max(22px,env(safe-area-inset-left,0px));bottom:118px;z-index:4;display:flex;gap:14px;align-items:center;pointer-events:none;
+  background:rgba(18,26,22,.80);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:18px;padding:14px 22px 14px 14px;
+  opacity:0;transform:translateY(18px) scale(.97);transition:opacity .55s ease,transform .7s cubic-bezier(.2,.8,.2,1)}
+.chapter.show{opacity:1;transform:none}
+.chapter .cn{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-size:24px;font-weight:600;background:var(--terra)}
+.chapter.b .cn{background:var(--green)}
+.chapter small{display:block;font-size:11px;letter-spacing:0;text-transform:none;color:var(--muted)}
+.chapter b{display:block;font-family:var(--display);font-size:22px;line-height:1.15;max-width:22ch}
+.chapter b,.chapter small{clip-path:inset(0 100% 0 0);transition:clip-path .8s .15s cubic-bezier(.6,0,.2,1)}
+.chapter.show b,.chapter.show small{clip-path:inset(0 0 0 0)}
+.wave{position:absolute;left:50%;top:84px;transform:translate(-50%,-8px);z-index:4;display:flex;align-items:center;gap:10px;pointer-events:none;
+  background:rgba(18,26,22,.78);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:20px;padding:7px 14px;font-size:12px;opacity:0;transition:opacity .4s,transform .4s}
+.wave.show{opacity:1;transform:translate(-50%,0)}
+.wave span{width:120px;height:4px;border-radius:2px;background:rgba(255,255,255,.18);position:relative;overflow:hidden}
+.wave span::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--terra),#8fe39b);transform-origin:left;transform:scaleX(var(--w,0))}
+@media (max-width:700px){.chapter{bottom:104px;padding:10px 16px 10px 10px}.chapter .cn{width:38px;height:38px;font-size:19px}.chapter b{font-size:17px}.wave{top:76px}}
+@media (prefers-reduced-motion:reduce){.chapter,.chapter b,.chapter small,.wave{transition:none}}
+
+.layers{position:relative}
+.lmenu{position:absolute;right:0;top:calc(100% + 8px);width:250px;background:rgba(18,26,22,.94);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:16px;padding:8px;display:grid;gap:4px;z-index:8}
+.lmenu button{display:grid;grid-template-columns:18px 1fr;column-gap:10px;align-items:center;text-align:left;background:transparent;border:1px solid transparent;border-radius:11px;padding:8px 10px;font-size:13.5px;font-weight:600}
+.lmenu button i{grid-row:span 2;width:18px;height:18px;border-radius:5px}
+.lmenu button small{grid-column:2;font-weight:400;font-size:11.5px;color:var(--muted)}
+.lmenu button:hover{background:rgba(255,255,255,.06)} .lmenu button.on{border-color:var(--leaf);background:rgba(143,208,122,.12)}
+.zlegend{position:absolute;right:18px;bottom:110px;z-index:4;background:rgba(18,26,22,.86);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:14px;padding:10px 14px;display:grid;gap:6px;font-size:12.5px}
+.zlegend b{font-size:11px;letter-spacing:0;text-transform:none;color:var(--muted)} .zlegend span{display:flex;gap:8px;align-items:center;cursor:default} .zlegend i{width:12px;height:12px;border-radius:3px}
+.box.ges{margin:0 0 12px;border-color:rgba(242,183,104,.35)} .box.ges h4{color:#f2b768}
+.godoc{display:block;margin:0 18px 10px;text-align:center;background:var(--terra);color:#fff;text-decoration:none;font-weight:700;border-radius:12px;padding:11px 14px;font-size:14px}
+.godoc:hover{filter:brightness(1.06)}
+.pin.hot button{background:#fffdf8;border-color:#245c3d;font-size:17px;width:38px;height:38px}
+.pin.hot .stem{background:#245c3d;height:14px}
+.hotcard{position:absolute;left:max(22px,env(safe-area-inset-left,0px));top:110px;z-index:6;width:min(340px,calc(100% - 44px));background:#fffdf8;color:#1c2a22;border-radius:18px;padding:16px 18px;box-shadow:0 18px 40px rgba(0,0,0,.3)}
+.hotcard b{display:block;font-size:16px;margin:0 22px 6px 0} .hotcard p{font-size:14px;line-height:1.5;color:#33433a}
+.hotcard div{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px} .hotcard a{color:#245c3d;font-size:12.5px;font-weight:600}
+.hotcard .lay{background:#245c3d;color:#fff;border:none;border-radius:30px;padding:7px 14px;font-weight:700;font-size:13px}
+.hotcard .x{position:absolute;right:10px;top:8px;background:none;border:none;font-size:22px;color:#5d6a61}
+/* ajustes del visor: etiquetas en tipo normal y terracota con contraste suficiente */
+.eyebrow,.box h4,.chapter small,.zlegend b{font-size:12.5px;font-weight:600}
+.brand small{font-size:12px}
+.compare .lbl{font-size:12px;font-weight:600}
+.tbtn.play,.godoc,.chapter .cn,.pnums button.on.b,.pin.b button{background:#b84a22;border-color:#b84a22}
+.ptitle{font-size:28px}
+
+/* ===================================================================
+   DOSSIER · sistema único
+   Layout: dossier editorial a una columna de 1180px; cabeceras de sección alineadas a la izquierda
+   (título a la izquierda, entrada a la derecha). Tres capítulos oscuros en verde samán (portada, maqueta,
+   antecedentes), el resto sobre papel. Un solo momento de color fuerte: la frase final en guayacán amarillo.
+   =================================================================== */
+:root{
+  --p-paper:#f5f4ee; --p-surface:#ffffff; --p-sunk:#eceee5;
+  --p-ink:#15241c; --p-ink2:#3b4840; --p-mute:#5f6b63; --p-line:#d9ddd1;
+  --p-forest:#163a28; --p-forest2:#0e2619; --p-leaf:#2b7a4b; --p-leaf-ink:#1f6a3e;
+  --p-guay:#f2b705; --p-rosa:#a8336a; --p-terra:#a9461f; --p-water:#2a6893;
+  --f-display:"Bricolage Grotesque","Inter",system-ui,sans-serif;
+  --f-body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --display:var(--f-display);
+  --ease-out:cubic-bezier(.23,1,.32,1);
+  --r-lg:20px; --r-md:14px; --r-sm:10px;
+  --wrap:1180px;
+  --gut:max(16px,env(safe-area-inset-left,0px));
+  --gutR:max(16px,env(safe-area-inset-right,0px));
+}
+body{background:var(--p-paper);color:var(--p-ink)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--p-surface)}
+.doc{background:var(--p-paper);color:var(--p-ink);font-family:var(--f-body);color-scheme:light;font-size:16px;line-height:1.55}
+.doc a{color:var(--p-leaf-ink);text-underline-offset:3px}
+.doc a:focus-visible,.doc button:focus-visible,.doc input:focus-visible{outline:3px solid var(--p-guay);outline-offset:3px;border-radius:6px}
+.doc h1,.doc h2,.doc h3,.doc h4{font-family:var(--f-display);font-weight:600;letter-spacing:-.02em;text-wrap:balance}
+.doc p{text-wrap:pretty}
+
+/* ---------- navegación ---------- */
+.dnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:color-mix(in srgb,var(--p-surface) 92%,transparent);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--p-line)}
+.dnav-in{max-width:calc(var(--wrap) + 32px);margin:0 auto;padding:10px var(--gutR) 10px var(--gut);display:flex;align-items:center;gap:20px}
+.dlogo{display:flex;align-items:center;gap:10px;text-decoration:none;flex:none;color:var(--p-ink)!important}
+.dlogo .logo{width:36px;height:36px}
+.dlogo b{display:block;font-family:var(--f-display);font-size:17px;line-height:1.1;letter-spacing:-.01em}
+.dlogo small{display:block;font-family:var(--f-mono);font-size:11.5px;color:var(--p-mute)}
+.dlinks{display:flex;gap:2px;flex:1;justify-content:center;min-width:0}
+.dlinks a{position:relative;text-decoration:none;color:var(--p-ink2)!important;font-size:14px;font-weight:500;padding:8px 10px;border-radius:8px;white-space:nowrap;transition:color 160ms ease,background-color 160ms ease}
+.dlinks a::after{content:"";position:absolute;left:10px;right:10px;bottom:3px;height:2px;border-radius:2px;background:var(--p-leaf);transform:scaleX(0);transform-origin:left;transition:transform 200ms var(--ease-out)}
+.dlinks a.on{color:var(--p-ink)!important}
+.dlinks a.on::after{transform:scaleX(1)}
+@media (hover:hover) and (pointer:fine){.dlinks a:hover{background:var(--p-sunk);color:var(--p-ink)!important}}
+.cta{flex:none;display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:600;font-size:14px;border-radius:999px;padding:10px 18px;background:var(--p-forest);color:#fff!important}
+@media (max-width:1100px){.dlinks{display:none}.dnav-in{justify-content:space-between}}
+
+/* ---------- estructura común ---------- */
+.dhero,.dsec{padding-block:clamp(64px,9vw,112px)}
+.wrap{max-width:calc(var(--wrap) + 32px);margin:0 auto;padding-left:var(--gut);padding-right:var(--gutR)}
+.dsec{scroll-margin-top:64px}
+.shead{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:20px 56px;align-items:end;margin-bottom:clamp(32px,4vw,48px)}
+.kick{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:13px;font-weight:500;letter-spacing:.02em;color:var(--p-terra);margin-bottom:14px}
+.kick::before{content:"";width:22px;height:2px;border-radius:2px;background:currentColor}
+.shead h2{font-size:clamp(34px,4.6vw,58px);line-height:1.02}
+.shead .sub{font-size:17.5px;line-height:1.6;color:var(--p-ink2);max-width:52ch}
+.dark{background:var(--p-forest);color:#eef3ee}
+.dark .kick{color:var(--p-guay)}
+.dark .shead h2,.dark h2,.dark h3{color:#fff}
+.dark .shead .sub{color:rgba(238,243,238,.82)}
+.dark a{color:#ffe08a}
+.sunk{background:var(--p-sunk)}
+.white{background:var(--p-surface)}
+
+.card{background:var(--p-surface);border:1px solid var(--p-line);border-radius:var(--r-lg);padding:24px;min-width:0}
+.card h3{font-size:19px;line-height:1.2;margin-bottom:12px;color:var(--p-ink)}
+.card p,.card li{font-size:15px;line-height:1.55;color:var(--p-ink2)}
+.card ul{padding-left:18px;display:grid;gap:6px}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.four{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.note{font-size:13.5px;color:var(--p-mute);margin-top:12px;line-height:1.5}
+.btn{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:600;font-size:16px;border-radius:999px;padding:14px 24px;background:var(--p-guay);color:var(--p-forest2)!important;border:2px solid var(--p-guay)}
+.btn.ghost{background:transparent;color:#fff!important;border-color:rgba(255,255,255,.5)}
+.btn svg{width:18px;height:18px}
+.pill{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;background:transparent;border:1.5px solid var(--p-leaf);color:var(--p-leaf-ink);border-radius:999px;padding:7px 14px;font-weight:600;font-size:13.5px}
+.pill::after{content:"→";font-weight:500}
+.dark .pill{border-color:rgba(255,255,255,.55);color:#fff}
+@media (hover:hover) and (pointer:fine){
+  .btn:hover{background:#ffc928;border-color:#ffc928}.btn.ghost:hover{background:rgba(255,255,255,.08);border-color:#fff}
+  .cta:hover{background:var(--p-leaf)}
+  .pill:hover{background:var(--p-leaf);color:#fff}.dark .pill:hover{background:#fff;color:var(--p-forest)}
+}
+.figure{margin:0 0 clamp(28px,4vw,44px);position:relative;border-radius:var(--r-lg);overflow:hidden;background:var(--p-sunk)}
+.figure img{display:block;width:100%;aspect-ratio:21/8;object-fit:cover}
+.figure figcaption{position:absolute;left:14px;bottom:14px;background:rgba(10,22,15,.66);backdrop-filter:blur(8px);color:#fff;font-family:var(--f-mono);font-size:12.5px;padding:6px 12px;border-radius:999px}
+@media (max-width:700px){.figure img{aspect-ratio:4/3}}
+
+/* ---------- portada ---------- */
+.dhero{background:var(--p-forest2);color:#eef3ee;padding-top:clamp(48px,7vw,88px)}
+.hcols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);gap:clamp(32px,5vw,72px);align-items:center}
+.dhero h1{font-size:clamp(48px,7.4vw,104px);line-height:.92;letter-spacing:-.035em;color:#fff;margin-bottom:22px}
+.dhero h1 span{color:var(--p-guay)}
+.dhero .lead{font-size:clamp(18px,1.6vw,21px);line-height:1.55;color:rgba(238,243,238,.88);max-width:44ch}
+.dhero dl.meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:28px 0 30px;padding-top:20px;border-top:1px solid rgba(255,255,255,.16)}
+.dhero dl.meta dt{font-family:var(--f-mono);font-size:12px;color:var(--p-guay);margin-bottom:4px}
+.dhero dl.meta dd{font-size:14.5px;line-height:1.4;color:#fff}
+.hbtns{display:flex;flex-wrap:wrap;gap:12px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin-top:clamp(48px,6vw,80px);border-top:1px solid rgba(255,255,255,.16)}
+.kpis>div{padding:22px 24px 4px 0;min-width:0}
+.kpis>div+div{padding-left:24px;border-left:1px solid rgba(255,255,255,.16)}
+.kpis b{display:block;font-family:var(--f-display);font-weight:600;font-size:clamp(36px,4vw,52px);line-height:1;letter-spacing:-.02em;color:#fff;font-variant-numeric:tabular-nums;margin-bottom:10px}
+.kpis b sup{font-size:.42em;vertical-align:.95em;margin-left:2px;color:var(--p-guay);font-weight:500}
+.kpis span{display:block;font-size:14.5px;line-height:1.4;color:#fff}
+.kpis small{display:block;font-family:var(--f-mono);font-size:11.5px;color:rgba(238,243,238,.62);margin-top:6px;line-height:1.45}
+/* comparador de portada */
+.hcmp{position:relative;margin:0;border-radius:var(--r-lg);overflow:hidden;aspect-ratio:4/3;max-width:100%;box-shadow:0 30px 60px -20px rgba(0,0,0,.55);touch-action:pan-y;user-select:none;background:#0b1d13}
+.hcmp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;max-width:none}
+.hcmp img.b{clip-path:inset(0 calc(100% - var(--x)) 0 0)}
+.hcmp .h{position:absolute;top:0;bottom:0;left:var(--x);width:2px;margin-left:-1px;background:#fff;pointer-events:none}
+.hcmp .h::after{content:"";position:absolute;top:50%;left:50%;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;background:#fff;box-shadow:0 6px 18px rgba(0,0,0,.35);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23163a28' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l-6 6 6 6M15 6l6 6-6 6'/%3E%3C/svg%3E");background-size:22px;background-position:center;background-repeat:no-repeat}
+.hcmp input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0}
+.hcmp input:focus-visible~.h::after{outline:3px solid var(--p-guay);outline-offset:3px}
+.hcmp .t{position:absolute;top:14px;padding:5px 11px;border-radius:999px;font-size:13px;font-weight:600;background:rgba(10,22,15,.66);backdrop-filter:blur(8px);color:#fff;pointer-events:none}
+.hcmp .t.l{left:14px}.hcmp .t.r{right:14px;background:var(--p-leaf)}
+.hcmp figcaption{position:absolute;left:0;right:0;bottom:0;padding:28px 16px 13px;font-size:13px;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.6));pointer-events:none}
+
+/* ---------- maqueta 3D ---------- */
+.band3d{background:var(--p-forest)}
+.band3d .app{height:min(86vh,860px);border-radius:var(--r-lg);overflow:hidden;box-shadow:0 40px 80px -30px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.08);color:var(--ink);font-family:var(--body);color-scheme:dark;text-align:left;font-size:14px;line-height:normal}
+.band3d .app *{font-family:inherit}
+.band3d .app .ptitle,.band3d .app .brand b,.band3d .app .chapter b{font-family:var(--f-display);letter-spacing:-.015em;font-weight:600}
+.band3d .godoc{color:#fff}
+@media (max-width:900px){.band3d .app{height:auto;grid-template-rows:64vh auto}}
+
+/* ---------- diagnóstico ---------- */
+.list{list-style:none;padding:0!important;display:grid;gap:12px}
+.retos li{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:4px 12px;align-items:baseline}
+.retos button{justify-self:start;display:inline-flex;align-items:center;gap:6px;background:#f8e6dc;color:#7f3415;border:none;border-radius:8px;padding:4px 10px;font-weight:600;font-size:14px;font-family:var(--f-body)}
+.retos button::after{content:"";width:12px;height:12px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 17L17 7M8 7h9v9'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 17L17 7M8 7h9v9'/%3E%3C/svg%3E") center/contain no-repeat}
+@media (hover:hover) and (pointer:fine){.retos button:hover{background:var(--p-terra);color:#fff}}
+.retos li span{font-size:15px;color:var(--p-ink2)}
+.potencial li{font-size:15px;color:var(--p-ink2);padding-left:18px;position:relative}
+.potencial li::before{content:"";position:absolute;left:0;top:.62em;width:7px;height:7px;border-radius:50%;background:var(--p-leaf)}
+.potencial b{color:var(--p-ink);font-weight:600}
+.card .tag{display:inline-block;font-family:var(--f-mono);font-size:12px;font-weight:500;color:var(--p-mute);margin-bottom:6px}
+.eq{margin:28px 0 0;padding:22px 24px;border-radius:var(--r-lg);background:var(--p-forest);color:#fff;display:grid;gap:16px}
+.eq ul{list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.eq li{font-size:14px;font-weight:500;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:7px 14px}
+.eq li+li::before{content:"+";margin:0 10px 0 -2px;color:var(--p-guay);font-weight:700}
+.eq li+li{border:none;background:none;padding-left:0}
+.eq strong{font-family:var(--f-display);font-weight:600;font-size:clamp(20px,2.4vw,28px);letter-spacing:-.015em;line-height:1.2}
+.eq strong em{font-style:normal;color:var(--p-guay)}
+blockquote{margin-top:36px;font-family:var(--f-display);font-weight:500;font-size:clamp(20px,2.3vw,27px);line-height:1.4;letter-spacing:-.01em;color:var(--p-ink);border-left:3px solid var(--p-terra);padding:2px 0 2px 24px;max-width:62ch}
+blockquote cite{display:block;margin-top:10px;font-family:var(--f-mono);font-style:normal;font-size:12.5px;color:var(--p-mute);letter-spacing:0}
+
+/* ---------- antecedentes ---------- */
+.split{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(32px,6vw,88px);align-items:start}
+.split .shead{grid-template-columns:1fr;margin-bottom:28px}
+.sticky{position:sticky;top:96px}
+.lesson{background:var(--p-guay);color:var(--p-forest2);border-radius:var(--r-lg);padding:22px 24px;font-size:16px;line-height:1.6}
+.lesson b{font-family:var(--f-display);font-size:18px;display:block;margin-bottom:6px}
+.lesson u{text-decoration-thickness:2px;text-underline-offset:3px;text-decoration-color:rgba(14,38,25,.45)}
+.tline{list-style:none;display:grid;position:relative;padding-left:34px}
+.tline::before{content:"";position:absolute;left:7px;top:10px;bottom:10px;width:2px;background:rgba(255,255,255,.18)}
+.tline li{position:relative;padding:0 0 32px}
+.tline li:last-child{padding-bottom:0}
+.tline li::before{content:"";position:absolute;left:-34px;top:5px;width:16px;height:16px;border-radius:50%;background:var(--p-forest);border:3px solid rgba(255,255,255,.55)}
+.tline li.bad::before{border-color:#ff8a6b}
+.tline li.good::before{border-color:var(--p-guay);background:var(--p-guay)}
+.tline time{display:block;font-family:var(--f-mono);font-size:13.5px;font-weight:500;color:var(--p-guay);margin-bottom:4px}
+.tline p{font-size:16px;line-height:1.6;color:#eef3ee;max-width:60ch}
+.tline .flag{display:inline-block;margin-left:8px;font-family:var(--f-body);font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;vertical-align:1px}
+.tline .bad .flag{background:rgba(255,138,107,.16);color:#ffb39e}
+.tline .good .flag{background:rgba(242,183,5,.16);color:#ffd760}
+.tline a{display:inline-block;margin-top:6px;font-size:13px;color:rgba(238,243,238,.7)!important}
+
+/* ---------- propuesta ---------- */
+.grid7{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.grid7 article{background:var(--p-surface);border:1px solid var(--p-line);border-radius:var(--r-lg);padding:22px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.grid7 article:first-child{grid-column:span 2;background:var(--p-forest);border-color:var(--p-forest);color:#fff}
+.grid7 article:first-child h3{color:#fff;font-size:24px}
+.grid7 article:first-child p{color:rgba(238,243,238,.85);font-size:16px}
+.grid7 article:first-child .n{background:var(--p-guay);color:var(--p-forest2)}
+.grid7 article:first-child button{border-color:rgba(255,255,255,.6);color:#fff}
+.grid7 .n{width:30px;height:30px;border-radius:50%;background:var(--p-sunk);color:var(--p-forest);display:grid;place-items:center;font-family:var(--f-mono);font-weight:600;font-size:13px}
+.grid7 h3{font-size:18px;line-height:1.2}
+.grid7 p{font-size:14.5px;line-height:1.55;color:var(--p-ink2);flex:1}
+
+/* ---------- zonificación ---------- */
+.zones{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.z{text-align:left;background:var(--p-surface);border:1px solid var(--p-line);border-radius:var(--r-lg);padding:22px;color:var(--p-ink);display:flex;flex-direction:column;gap:12px;font-family:var(--f-body);min-width:0;transition:border-color 160ms ease,transform 160ms var(--ease-out)}
+.z .sw{width:100%;height:8px;border-radius:4px;background:var(--zc)}
+.z h3{font-size:19px;line-height:1.2}
+.z ul{list-style:none;display:grid;gap:6px}
+.z li{font-size:14.5px;color:var(--p-ink2);padding-left:14px;position:relative}
+.z li::before{content:"";position:absolute;left:0;top:.6em;width:6px;height:6px;border-radius:2px;background:var(--zc)}
+.z .go{margin-top:auto;font-size:13px;font-weight:600;color:var(--p-mute)}
+.z.eco{--zc:#2f9e57}.z.peat{--zc:#2f7fb0}.z.econ{--zc:#e07b39}.z.veh{--zc:#2b2f33}
+@media (hover:hover) and (pointer:fine){.z:hover{border-color:var(--zc)}.z:hover .go{color:var(--p-ink)}}
+.z:focus-visible{outline:3px solid var(--zc)!important}
+.z:active{transform:scale(.98)}
+
+/* ---------- sistemas ---------- */
+.sis article{display:flex;flex-direction:column;gap:12px}
+.sis .ico{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:12px;color:var(--p-mute)}
+.sis .ico i{width:14px;height:14px;border-radius:4px;background:var(--lc)}
+.sis h3{margin:0}
+.sis p{flex:1}
+.sis a.refl{font-size:13px;font-weight:500;line-height:1.4}
+
+/* ---------- ambiente ---------- */
+.suds{list-style:none;display:grid;gap:0;margin:4px 0 18px;counter-reset:s}
+.suds li{position:relative}
+.suds button{width:100%;display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:center;text-align:left;background:transparent;border:none;border-bottom:1px solid var(--p-line);padding:13px 4px;font-family:var(--f-body);font-weight:600;font-size:15.5px;color:var(--p-ink2)}
+.suds button i{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--p-line);display:grid;place-items:center;font-style:normal;font-family:var(--f-mono);font-size:12px;color:var(--p-mute);transition:background-color 160ms ease,color 160ms ease,border-color 160ms ease}
+.suds button.on{color:var(--p-ink)}
+.suds button.on i{background:var(--p-water);border-color:var(--p-water);color:#fff}
+@media (hover:hover) and (pointer:fine){.suds button:hover{color:var(--p-ink)}}
+.sudsTxt{min-height:78px;font-size:16.5px;line-height:1.6;color:var(--p-ink);background:#e5eef4;border-radius:var(--r-md);padding:16px 18px;border-left:3px solid var(--p-water)}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.tblw{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:14.5px}
+.tbl th{text-align:left;font-family:var(--f-mono);font-size:12px;font-weight:500;color:var(--p-mute);padding:8px 10px 8px 0;border-bottom:1px solid var(--p-line)}
+.tbl td{padding:11px 10px 11px 0;border-bottom:1px solid var(--p-line);vertical-align:top;color:var(--p-ink2)}
+.tbl td:first-child{color:var(--p-ink);font-weight:500}
+.tbl td i{display:block;font-weight:400;color:var(--p-mute);font-size:13px}
+.tbl tr:last-child td{border-bottom:none}
+
+/* ---------- disciplinas ---------- */
+.tabs{display:inline-flex;gap:4px;padding:4px;margin-bottom:24px;background:var(--p-sunk);border-radius:999px;flex-wrap:wrap}
+.tabs button{border:none;background:transparent;border-radius:999px;padding:9px 18px;font-weight:600;font-size:14.5px;color:var(--p-ink2);font-family:var(--f-body)}
+.tabs button[aria-selected="true"]{background:var(--p-surface);color:var(--p-ink);box-shadow:0 1px 3px rgba(20,35,27,.14)}
+.tabp{display:grid;gap:16px}
+.tabp .card h3{font-size:17px}
+.tbl.ind{background:var(--p-surface);border-radius:var(--r-lg);border:1px solid var(--p-line)}
+.tbl.ind th,.tbl.ind td{padding-left:18px}
+.calc{background:var(--p-forest);color:#eef3ee;border-radius:var(--r-lg);padding:clamp(20px,3vw,32px)}
+.calc h3{font-size:22px;color:#fff;margin-bottom:4px}
+.calc .calc-sub{font-size:14px;color:rgba(238,243,238,.72);margin-bottom:22px}
+.crow{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.crow label{display:grid;gap:7px;font-size:13px;color:rgba(238,243,238,.8)}
+.crow input[type=number]{background:var(--p-forest2);border:1px solid rgba(255,255,255,.16);color:#fff;border-radius:var(--r-sm);padding:10px 12px;font:500 15px var(--f-mono);width:100%}
+.crow input[type=range]{accent-color:var(--p-guay);width:100%}
+.crow output{font-family:var(--f-mono);font-weight:500;color:#fff}
+.cout{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-top:24px}
+.cout div{background:var(--p-forest2);border-radius:var(--r-md);padding:16px;min-width:0}
+.cout span{display:block;font-size:12.5px;color:rgba(238,243,238,.7);margin-bottom:6px;line-height:1.35}
+.cout b{font-family:var(--f-mono);font-weight:500;font-size:18px;font-variant-numeric:tabular-nums;color:#fff;overflow-wrap:anywhere}
+.cout .hl{background:var(--p-guay)} .cout .hl span{color:rgba(14,38,25,.75)} .cout .hl b{color:var(--p-forest2);font-size:24px}
+.cout .bar{display:block;height:6px;border-radius:3px;background:rgba(14,38,25,.2);margin-top:10px;overflow:hidden}
+.cout .bar em{display:block;height:100%;background:var(--p-forest2);width:0;transition:width 300ms var(--ease-out)}
+@media (max-width:1100px){.cout{grid-template-columns:repeat(2,minmax(0,1fr))}.cout .hl{grid-column:span 2}}
+.actors{display:flex;flex-wrap:wrap;gap:8px}
+.actors span{background:var(--p-sunk);border-radius:999px;padding:8px 14px;font-weight:600;font-size:14px;color:var(--p-ink)}
+.actors span.dk{background:var(--p-forest);color:#fff}
+.actors span.gr{background:var(--p-leaf);color:#fff}
+.gov p{margin-bottom:8px}
+.gov p b{color:var(--p-ink)}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tags span{border:1px solid var(--p-line);border-radius:999px;padding:5px 12px;font-size:13.5px;font-weight:500;color:var(--p-ink2)}
+.norm li{display:grid;grid-template-columns:minmax(150px,200px) minmax(0,1fr);gap:4px 16px;padding:12px 0;border-bottom:1px solid var(--p-line);font-size:15px;color:var(--p-ink2)}
+.norm li:last-child{border-bottom:none}
+.norm li b{font-family:var(--f-mono);font-weight:500;font-size:13.5px;color:var(--p-ink)}
+.sub-h{font-size:16px;margin:20px 0 10px}
+
+/* ---------- ruta ---------- */
+.steps{list-style:none;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;margin:0 0 18px;position:relative}
+.steps::before{content:"";position:absolute;left:10%;right:10%;top:17px;height:2px;background:var(--p-line)}
+.steps li{position:relative;display:flex;justify-content:center}
+.steps button{display:flex;flex-direction:column;align-items:center;gap:10px;background:none;border:none;padding:0 6px;font-family:var(--f-body);font-weight:600;font-size:14.5px;color:var(--p-mute);text-align:center}
+.steps button i{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--p-surface);border:2px solid var(--p-line);font-style:normal;font-family:var(--f-mono);font-size:13px;color:var(--p-mute);position:relative;transition:background-color 160ms ease,border-color 160ms ease,color 160ms ease}
+.steps button.done i{border-color:var(--p-leaf);color:var(--p-leaf-ink)}
+.steps button.on{color:var(--p-ink)}
+.steps button.on i{background:var(--p-leaf);border-color:var(--p-leaf);color:#fff}
+.stepTxt{min-height:60px;font-size:17px;line-height:1.6;color:var(--p-ink);background:var(--p-surface);border:1px solid var(--p-line);border-radius:var(--r-md);padding:18px 22px;margin-bottom:24px}
+.ba h3{display:flex;align-items:center;gap:10px}
+.ba h3 i{font-style:normal;font-family:var(--f-mono);font-size:12px;font-weight:500;padding:3px 9px;border-radius:999px}
+.ba .before h3 i{background:#f8e6dc;color:#7f3415}
+.ba .after h3 i{background:#dcefe2;color:var(--p-leaf-ink)}
+.ba ul{list-style:none;padding:0}
+.ba li{padding-left:22px;position:relative}
+.ba .before li::before{content:"–";position:absolute;left:4px;color:var(--p-terra);font-weight:700}
+.ba .after li::before{content:"✓";position:absolute;left:2px;color:var(--p-leaf);font-weight:700}
+.ba .pill{margin-top:16px}
+
+/* ---------- impactos ---------- */
+.imp .card{border-top:4px solid var(--ic)}
+.imp .card h3{color:var(--ic)}
+.imp .amb{--ic:var(--p-leaf-ink)} .imp .soc{--ic:var(--p-water)} .imp .eco{--ic:var(--p-terra)} .imp .gob{--ic:var(--p-rosa)}
+.refh{font-family:var(--f-mono);font-size:13px;font-weight:500;color:var(--p-mute);margin:44px 0 14px}
+.ref{text-decoration:none;display:flex;flex-direction:column;gap:8px;color:var(--p-ink)!important;transition:border-color 160ms ease}
+.ref b{font-family:var(--f-display);font-weight:600;font-size:18px;letter-spacing:-.01em}
+.ref span{font-size:14.5px;line-height:1.55;color:var(--p-ink2);flex:1}
+.ref small{font-size:13px;font-weight:600;color:var(--p-leaf-ink)}
+@media (hover:hover) and (pointer:fine){.ref:hover{border-color:var(--p-leaf)}}
+.closing{background:var(--p-guay);color:var(--p-forest2);padding-block:clamp(64px,9vw,120px)}
+.closing p{font-family:var(--f-display);font-weight:600;font-size:clamp(34px,5.4vw,72px);line-height:1.02;letter-spacing:-.03em;max-width:18ch;text-wrap:balance}
+.closing small{display:block;margin-top:24px;font-family:var(--f-mono);font-size:13px;color:rgba(14,38,25,.7)}
+
+/* ---------- referencias y pie ---------- */
+.refs{columns:2 380px;column-gap:48px;padding-left:22px;font-size:14px;line-height:1.55;color:var(--p-ink2)}
+.refs li{break-inside:avoid;margin-bottom:10px;padding-left:4px}
+.refs li::marker{font-family:var(--f-mono);font-size:12px;color:var(--p-mute)}
+.dfoot{background:var(--p-forest2);color:rgba(238,243,238,.75);padding-block:48px calc(40px + env(safe-area-inset-bottom,0px));font-size:14px;line-height:1.6}
+.dfoot .fgrid{display:grid;grid-template-columns:minmax(0,1.2fr) repeat(2,minmax(0,1fr));gap:32px}
+.dfoot .dlogo{color:#fff!important;margin-bottom:12px}
+.dfoot .dlogo small{color:rgba(238,243,238,.6)}
+.dfoot h4{font-family:var(--f-mono);font-size:12px;font-weight:500;letter-spacing:0;color:var(--p-guay);margin-bottom:8px}
+.dfoot a{color:#fff}
+.dfoot .q{margin-top:32px;padding-top:20px;border-top:1px solid rgba(255,255,255,.12);font-size:13px}
+
+/* ---------- respuesta táctil ---------- */
+.btn,.cta,.pill,.godoc,.tbtn,.tabs button,.steps button,.suds button,.retos button,.lmenu button,.pnums button,.ptabs button,.cmpbtns button,.hotcard .lay,.grid7 button{transition:transform 160ms var(--ease-out),background-color 160ms ease,color 160ms ease,border-color 160ms ease}
+.btn:active,.cta:active,.pill:active,.godoc:active,.tbtn:active,.tabs button:active,.suds button:active,.retos button:active,.lmenu button:active,.pnums button:active,.ptabs button:active,.cmpbtns button:active,.hotcard .lay:active{transform:scale(.97)}
+.steps button:active i{transform:scale(.94)}
+.pin .tag{transition:opacity 150ms var(--ease-out),transform 150ms var(--ease-out)}
+.lmenu:not([hidden]){animation:pop 160ms var(--ease-out);transform-origin:top right}
+.hotcard:not([hidden]){animation:pop 200ms var(--ease-out);transform-origin:top left}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+
+/* ---------- responsive ---------- */
+@media (max-width:1024px){
+  .four,.grid7,.zones{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .grid7 article:first-child{grid-column:span 2}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpis>div:nth-child(3){padding-left:0;border-left:none}
+  .kpis>div:nth-child(n+3){border-top:1px solid rgba(255,255,255,.16);margin-top:18px}
+}
+@media (max-width:900px){
+  .shead,.split,.hcols{grid-template-columns:1fr}
+  .shead{gap:14px}
+  .sticky{position:static}
+  .two,.three{grid-template-columns:1fr}
+  .dfoot .fgrid{grid-template-columns:1fr}
+}
+@media (max-width:700px){
+  .steps{grid-template-columns:1fr;gap:0}
+  .steps::before{left:17px;right:auto;top:18px;bottom:18px;width:2px;height:auto}
+  .steps li{justify-content:flex-start}
+  .steps button{flex-direction:row;padding:7px 0;gap:14px;text-align:left}
+  .retos li{grid-template-columns:1fr}
+  .norm li{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .four,.grid7,.zones{grid-template-columns:1fr}
+  .grid7 article:first-child{grid-column:auto}
+  .dhero dl.meta{grid-template-columns:1fr;gap:12px}
+  .kpis{grid-template-columns:1fr}
+  .kpis>div,.kpis>div+div{padding-left:0;border-left:none;border-top:1px solid rgba(255,255,255,.16);margin-top:0;padding-bottom:18px}
+  .kpis>div:first-child{border-top:none}
+  .cout{grid-template-columns:1fr}.cout .hl{grid-column:auto}
+  .hbtns .btn{flex:1;justify-content:center}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.lmenu:not([hidden]),.hotcard:not([hidden]){animation:none}*{transition-duration:0ms!important}}
+
+/* ---------- ajustes finales ---------- */
+.dhero .kick{color:var(--p-guay)}
+.eq li,.eq li+li{background:none;border:none;padding:0}
+.eq li{font-size:15px}
+.retos li{grid-template-columns:190px minmax(0,1fr)}
+.doc .refh{font-family:var(--f-mono);font-size:13px;font-weight:500;letter-spacing:0;color:var(--p-mute)}
+.closing p{max-width:20ch}
+@media (max-width:700px){.retos li{grid-template-columns:1fr}}
+.logo.sm{width:30px;height:30px;flex:none}
+.brand{max-width:min(320px,100%)}
+
+/* ---------- ronda 2 ---------- */
+.skip{position:absolute;left:12px;top:-60px;z-index:60;background:var(--p-guay);color:var(--p-forest2)!important;font-weight:600;padding:10px 16px;border-radius:999px;text-decoration:none;transition:top 160ms var(--ease-out)}
+.skip:focus{top:calc(12px + env(safe-area-inset-top,0px))}
+.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:clamp(28px,4vw,44px)}
+.pair .figure{margin:0}
+.pair .figure img{aspect-ratio:16/10}
+.figure figcaption.prop{background:var(--p-leaf)}
+.figure img{height:auto}
+@media (max-width:700px){.pair{grid-template-columns:1fr}}
+@media (max-width:1100px){
+  .dnav-in{flex-wrap:wrap;row-gap:6px;padding-bottom:6px}
+  .dlinks{display:flex;order:3;flex-basis:100%;justify-content:flex-start;overflow-x:auto;scrollbar-width:none;margin:0 -8px;padding:0 8px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 12px,#000 calc(100% - 24px),transparent);mask-image:linear-gradient(90deg,transparent,#000 12px,#000 calc(100% - 24px),transparent)}
+  .dlinks::-webkit-scrollbar{display:none}
+  .dlinks a{font-size:13.5px;padding:6px 10px}
+  .dsec{scroll-margin-top:100px}
+}
+@media (max-width:420px){.cta{padding:9px 14px;font-size:13.5px}.dlogo small{display:none}}
+@media (max-width:560px){.hbtns .btn{white-space:nowrap;padding:13px 18px;font-size:15px}}
+
+</style>
+</head>
+<body>
+<!-- ===================== DOSSIER DE LA PROPUESTA ===================== -->
+<div class="doc" id="dossier">
+  <a class="skip" href="#contenido">Saltar al contenido</a>
+  <nav class="dnav" aria-label="Secciones de la propuesta">
+    <div class="dnav-in">
+      <a class="dlogo" href="#dossier"><svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 57C14 44 5 34 5 21.5 5 12.7 11.7 6 20 6c5 0 9.3 2.5 12 6.5C34.7 8.5 39 6 44 6c8.3 0 15 6.7 15 15.5C59 34 50 44 32 57z" fill="#e3764a"/><g fill="#fff"><ellipse cx="32" cy="36.5" rx="7.6" ry="6.4"/><ellipse cx="22.6" cy="27.5" rx="3.3" ry="4.1" transform="rotate(-18 22.6 27.5)"/><ellipse cx="28.6" cy="21.6" rx="3.2" ry="4.2"/><ellipse cx="35.4" cy="21.6" rx="3.2" ry="4.2"/><ellipse cx="41.4" cy="27.5" rx="3.3" ry="4.1" transform="rotate(18 41.4 27.5)"/></g></svg><span><b>Parque del Perro</b><small>24/7 · Cali</small></span></a>
+      <div class="dlinks"><a href="#d-3d">Recorrido 3D</a><a href="#d-diag">Diagnóstico</a><a href="#d-ante">Antecedentes</a><a href="#d-prop">Propuesta</a><a href="#d-zon">Zonas</a><a href="#d-amb">Ambiente</a><a href="#d-disc">Disciplinas</a><a href="#d-imp">Impactos</a><a href="#d-ref">Fuentes</a></div>
+      <a href="#d-3d" class="cta">Ver recorrido 3D</a>
+    </div>
+  </nav>
+
+  <header class="dhero">
+    <div class="wrap">
+      <div class="hcols">
+        <div>
+          <p class="kick">Propuesta de urbanismo sostenible · Universidad Icesi</p>
+          <h1>Parque del Perro <span>24/7</span></h1>
+          <p class="lead">De zona de paso a espacio de encuentro: un lugar para caminar, encontrarse, emprender y convivir con la naturaleza en una misma experiencia urbana.</p>
+          <dl class="meta"><div><dt>Sector</dt><dd>Barrio San Fernando, comuna 19</dd></div><div><dt>Equipo</dt><dd>Luna Villafañe Ardila y Camila Solarte</dd></div><div><dt>Disciplinas</dt><dd>Biología, finanzas y ciencia política</dd></div></dl>
+          <div class="hbtns"><a class="btn" href="#d-3d"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>Recorrer en 3D</a><a class="btn ghost" href="#d-prop">Ver la propuesta</a></div>
+        </div>
+        <figure class="hcmp" id="hcmp" style="--x:46%">
+          <img src="img/04-despues.jpg" width="880" height="495" fetchpriority="high" alt="Propuesta: plaza de llegada a nivel con el corazón dibujado en el piso y el tótem de Teddy">
+          <img class="b" src="img/04-antes.jpg" alt="Hoy: cebra larga e isla de tráfico frente al parque">
+          <span class="t l">Hoy</span><span class="t r">Propuesta</span>
+          <i class="h" aria-hidden="true"></i>
+          <input type="range" id="hcmpRange" min="0" max="100" value="46" aria-label="Comparar la llegada al parque hoy y con la propuesta">
+          <figcaption>Arrastra para comparar la llegada al parque</figcaption>
+        </figure>
+      </div>
+      <div class="kpis">
+        <div><b data-count="20100">0</b><span>m² reorganizados</span><small>Estimado sobre el trazado OSM del modelo</small></div>
+        <div><b data-count="313">0</b><span>metros de bulevar, del parque a la Calle 4B</span><small>Eje de la Carrera 34</small></div>
+        <div><b data-count="4">0</b><span>zonas funcionales</span><small>Ecológica, peatonal, económica y vehicular</small></div>
+        <div><b>2,46</b><span>m² de espacio público por habitante en Cali</span><small>Frente a 15 m² de referencia · El País, 2012</small></div>
+      </div>
+    </div>
+  </header>
+
+  <main id="contenido">
+  <section class="dsec band3d dark" id="d-3d" aria-labelledby="h-3d">
+    <div class="wrap">
+      <div class="shead">
+        <div><p class="kick">Maqueta interactiva</p><h2 id="h-3d">Recorre la propuesta en 3D</h2></div>
+        <p class="sub">Del trazado real de San Fernando a la propuesta. Dale play al recorrido, cambia entre hoy y propuesta, activa las capas y toca los íconos blancos para ver cada sistema.</p>
+      </div>
+      <div class="app">
+  <div class="stage" role="region" aria-label="Maqueta 3D">
+    <div id="scene" role="img" aria-label="Maqueta 3D interactiva del bulevar de la Carrera 34 y la rotonda del Parque del Perro"></div>
+    <div id="pins"></div>
+    <div class="topbar">
+      <div class="brand"><svg class="logo sm" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 57C14 44 5 34 5 21.5 5 12.7 11.7 6 20 6c5 0 9.3 2.5 12 6.5C34.7 8.5 39 6 44 6c8.3 0 15 6.7 15 15.5C59 34 50 44 32 57z" fill="#e3764a"/><g fill="#fff"><ellipse cx="32" cy="36.5" rx="7.6" ry="6.4"/><ellipse cx="22.6" cy="27.5" rx="3.3" ry="4.1" transform="rotate(-18 22.6 27.5)"/><ellipse cx="28.6" cy="21.6" rx="3.2" ry="4.2"/><ellipse cx="35.4" cy="21.6" rx="3.2" ry="4.2"/><ellipse cx="41.4" cy="27.5" rx="3.3" ry="4.1" transform="rotate(18 41.4 27.5)"/></g></svg><div><b>Parque del Perro 24/7</b><small>Volver al Corazón · recorrido 3D · Cali</small></div></div>
+      <div class="tools">
+        <button class="tbtn play" id="btnPlay" type="button">▶ <span class="t">Recorrido</span></button>
+        <button class="tbtn mode" id="btnMode" type="button" aria-pressed="true"><span class="sw"><i></i></span> <span class="t" id="modeTxt">Propuesta</span></button>
+        <button class="tbtn" id="btnOverview" type="button">⌂ <span class="t">Vista general</span></button>
+        <button class="tbtn" id="btnNight" type="button">☾ <span class="t">Noche</span></button>
+        <div class="layers"><button class="tbtn" id="btnLayers" type="button" aria-expanded="false" aria-controls="layerMenu">◧ <span class="t">Capas</span></button>
+          <div class="lmenu" id="layerMenu" hidden>
+            <button type="button" data-layer="zonas" aria-pressed="false"><i style="background:linear-gradient(90deg,#2f9e57 25%,#2f7fb0 25% 50%,#e07b39 50% 75%,#2b2f33 75%)"></i>Zonificación<small>4 zonas del documento</small></button>
+            <button type="button" data-layer="agua" aria-pressed="false"><i style="background:#4fa8ff"></i>Agua lluvia (SUDS)<small>escorrentía e infiltración</small></button>
+            <button type="button" data-layer="residuos" aria-pressed="false"><i style="background:#8fe39b"></i>Islas de residuos<small>3 colores, Res. 2184/2019</small></button>
+            <button type="button" data-layer="bio" aria-pressed="false"><i style="background:#f08a24"></i>Polinizadores<small>mariposas en jardines nativos</small></button>
+          </div></div>
+      </div>
+    </div>
+    <div class="chapter" id="chapter" aria-live="polite"><span class="cn" id="chN">1</span><div><small id="chZ">Tramo A</small><b id="chT">Puerta sur</b></div></div>
+    <div class="wave" id="wave" aria-hidden="true"><b>Hoy</b><span></span><b>Propuesta</b></div>
+    <div class="zlegend" id="zlegend" hidden><b>Zonificación</b><span data-z="eco"><i style="background:#2f9e57"></i>Núcleo ecológico</span><span data-z="peat"><i style="background:#2f7fb0"></i>Corredor peatonal</span><span data-z="econ"><i style="background:#e07b39"></i>Actividad económica</span><span data-z="veh"><i style="background:#2b2f33"></i>Zona vehicular controlada</span></div>
+    <div class="hint" id="hint">Arrastra para girar · rueda o pellizco para acercar · toca un número</div>
+    <div class="timeline">
+      <div class="ticks">
+        <input type="range" id="scrub" min="0" max="1000" value="0" aria-label="Avance del recorrido">
+        <div class="marks" id="marks"></div>
+      </div>
+      <div class="time" id="time">00:00 / 01:20</div>
+    </div>
+    <div class="loading" id="loading">Construyendo la maqueta…</div>
+  </div>
+
+  <aside class="panel" aria-label="Tramos del proyecto">
+    <div class="ptabs">
+      <button type="button" class="a" data-tramo="a"><b>Tramo A · Corredor verde</b><small>Carrera 34 · puntos 1 a 3</small></button>
+      <button type="button" class="b" data-tramo="b"><b>Tramo B · La rotonda</b><small>Anillo y parque · puntos 4 a 9</small></button>
+    </div>
+    <div class="pscroll">
+      <div class="pnums" id="pnums"></div>
+      <div class="eyebrow" id="pzone">Vista general</div>
+      <h3 class="ptitle" id="ptitle">Un solo bulevar abierto</h3>
+      <div class="compare" id="compare">
+        <img class="after" id="imgAfter" alt="Propuesta">
+        <img class="before" id="imgBefore" alt="Estado actual">
+        <span class="lbl l1">Hoy</span><span class="lbl l2">Propuesta</span>
+        <div class="bar"></div><div class="knob">⇆</div>
+        <input type="range" id="cmp" min="0" max="100" value="50" aria-label="Comparar hoy y propuesta">
+      </div>
+      <div class="cmpbtns"><button type="button" data-x="100">Ver hoy</button><button type="button" data-x="50">Mitad</button><button type="button" data-x="0">Ver propuesta</button></div>
+      <div class="row">
+        <div class="box hoy"><h4>Hoy</h4><p id="phoy"></p></div>
+        <div class="box prop"><h4>Propuesta</h4><p id="pprop"></p></div>
+      </div>
+      <div class="box ges"><h4>Cómo se sostiene</h4><p id="pges"></p></div>
+      <div class="chips" id="pchips"></div>
+      <div class="legend">
+        <span><i style="background:#c98a5f"></i>Adoquín a un nivel</span>
+        <span><i style="background:#4f8a45"></i>Eje verde y jardines</span>
+        <span><i style="background:#f2b768"></i>Negocios activos</span>
+        <span><i style="background:#4fb0ff"></i>Sensores</span>
+      </div>
+    </div>
+    <a class="godoc" href="#d-diag">Seguir con la propuesta ↓</a>
+    <div class="pfoot">Universidad Icesi · Proyecto final grupal. Fotos de hoy: Google Street View (uso académico). Propuesta: renders generados con IA. Trazado de calles y edificios del entorno: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener" style="color:inherit">OpenStreetMap</a>; los edificios sin mapear se completan de forma esquemática.</div>
+  </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="dsec" id="d-diag" aria-labelledby="h-diag">
+    <div class="wrap">
+      <div class="shead">
+        <div><p class="kick">Diagnóstico del sector</p><h2 id="h-diag">¿Qué está pasando hoy?</h2></div>
+        <p class="sub">El Parque del Perro es un nodo urbano, gastronómico y cultural activo de día y de noche en el suroccidente de Cali. Se llega por la Carrera 34, la Calle 3 y la conexión con la Calle 5.</p>
+      </div>
+      <figure class="figure"><img src="img/02-antes.jpg" width="1600" height="937" decoding="async" alt="Carrera 34 hoy, con doble calzada, carros parqueados y un separador de palmas" loading="lazy"><figcaption>Carrera 34 con Calle 4 · hoy</figcaption></figure>
+      <div class="two">
+        <div class="card"><span class="tag">Toca un reto para verlo en la maqueta</span><h3>Retos identificados</h3>
+          <ul class="list retos">
+            <li><button type="button" data-act="hoy:2">Conflicto vial</button><span>Choque entre vehículos y peatones.</span></li>
+            <li><button type="button" data-act="hoy:1">Andenes limitados</button><span>Espacio peatonal estrecho y discontinuo.</span></li>
+            <li><button type="button" data-act="hoy:3">Saturación comercial</button><span>Alta concentración gastronómica sobre el andén.</span></li>
+            <li><button type="button" data-act="hoy:8">Residuos sólidos</button><span>Generación alta y manejo insuficiente.</span></li>
+            <li><button type="button" data-act="hoy:9">Déficit ecológico</button><span>Poca infraestructura verde y biodiversidad.</span></li>
+            <li><button type="button" data-act="hoy:5">Convivencia barrial</button><span>Tensión entre residentes y visitantes.</span></li>
+          </ul></div>
+        <div class="card"><span class="tag">Lo que ya tiene el sector</span><h3>Potenciales</h3>
+          <ul class="list potencial">
+            <li><b>Dinamismo económico.</b> Actividad comercial consolidada: en Borondo participaron 55 emprendimientos y cerca de 60 restaurantes.</li>
+            <li><b>Identidad urbana.</b> Teddy y el parque son un referente histórico y cultural de Cali.</li>
+            <li><b>Poder de atracción.</b> Flujo constante de visitantes de toda la ciudad.</li>
+            <li><b>Vocación gastronómica.</b> Clúster culinario reconocido.</li>
+            <li><b>Nodo comunitario.</b> Vocación natural de espacio de encuentro.</li>
+            <li><b>Valor paisajístico.</b> Arbolado maduro y un potencial ambiental recuperable.</li>
+          </ul></div>
+      </div>
+      <div class="eq" aria-label="Síntesis del problema">
+        <ul><li>Actividad comercial</li><li>Tráfico vehicular</li><li>Alta afluencia</li><li>Poco espacio peatonal</li><li>Manejo de residuos</li></ul>
+        <strong><em>=</em> Conflicto por el uso del espacio público</strong>
+      </div>
+      <blockquote>El Parque del Perro concentra actividad comercial, gastronómica, peatonal y vehicular en un mismo espacio, generando conflictos en el uso del espacio público y desaprovechando su potencial ambiental, social y económico.<cite>Planteamiento del problema</cite></blockquote>
+    </div>
+  </section>
+
+  <section class="dsec dark" id="d-ante" aria-labelledby="h-ante">
+    <div class="wrap split">
+      <div class="sticky">
+        <div class="shead">
+          <div><p class="kick">Antecedentes verificados</p><h2 id="h-ante">Ya se intentó. Esto aprendimos.</h2></div>
+          <p class="sub">La peatonalización de la Carrera 34 ya se probó. Sin gestión ni infraestructura fija, el espacio se deterioró. Por eso la propuesta une diseño, reglas y una mesa de gobernanza.</p>
+        </div>
+        <div class="lesson"><b>La lección</b>El cierre por sí solo no funciona. Funciona con <u>infraestructura fija</u> (piso a nivel, verde, mobiliario), <u>reglas claras</u> (horarios de carga, licencias, ruido), <u>manejo de residuos</u> y una <u>mesa de gobernanza</u> que evalúe y corrija.</div>
+      </div>
+      <ol class="tline">
+        <li><time>2020</time><p>La Alcaldía propone transformar el sector en una zona con más espacio peatonal para favorecer la economía y la movilidad.</p><a href="https://www.cali.gov.co/publicaciones/179128/alcaldia-reevalua-retorno-del-paso-vehicular-en-el-parque-del-perro/" target="_blank" rel="noopener">Fuente: Alcaldía de Cali</a></li>
+        <li><time>Febrero 2022</time><p>Se peatonaliza la segunda calzada de la Carrera 34 con materas, bajo una licencia temporal a una asociación de restaurantes. Residentes y conductores del barrio la rechazan.</p><a href="https://occidente.co/cali/via-peatonal-en-el-parque-del-perro-divide-opiniones-en-cali/" target="_blank" rel="noopener">Fuente: Occidente</a></li>
+        <li class="bad"><time>Octubre 2023 <span class="flag">Medida fallida</span></time><p>La Alcaldía reevalúa la medida: el tramo terminó como parqueo de motos, sitio de reciclaje y con materas deterioradas. La califica como una estrategia fallida.</p><a href="https://www.cali.gov.co/publicaciones/179128/alcaldia-reevalua-retorno-del-paso-vehicular-en-el-parque-del-perro/" target="_blank" rel="noopener">Fuente: Alcaldía de Cali</a></li>
+        <li><time>Mayo 2025</time><p>La Calle 3 Oeste entre carreras 35 y 34 cambia de sentido (sur a norte) para mejorar la fluidez y la seguridad peatonal en la zona comercial.</p><a href="https://www.cali.gov.co/salud/publicaciones/186846/parque-del-perro-cambia-de-sentido-vial-para-garantizar-una-mayor-fluidez-en-la-movilidad/" target="_blank" rel="noopener">Fuente: Alcaldía de Cali</a></li>
+        <li class="good"><time>Septiembre 2026 <span class="flag">Señal positiva</span></time><p>Borondo: con un cierre vial temporal, 55 emprendimientos y cerca de 60 restaurantes ocupan el espacio público para reactivar la economía del sector.</p><a href="https://www.cali.gov.co/gobierno/publicaciones/194301/borondo-impulso-la-reactivacion-economica-de-emprendedores-y-restaurantes-en-el-parque-del-perro/" target="_blank" rel="noopener">Fuente: Alcaldía de Cali</a></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="dsec white" id="d-prop" aria-labelledby="h-prop">
+    <div class="wrap">
+      <div class="shead">
+        <div><p class="kick">Propuesta de intervención</p><h2 id="h-prop">Un espacio público compartido, de día y de noche</h2></div>
+        <p class="sub">Un modelo integral con reorganización física, ecológica, económica y normativa. Cada componente se puede ver en la maqueta 3D.</p>
+      </div>
+      <div class="pair">
+        <figure class="figure"><img src="img/03-antes.jpg" width="1600" height="937" alt="Calle 3A hoy: bahías de parqueo frente a los restaurantes y mesas sobre el andén" loading="lazy" decoding="async"><figcaption>Calle 3A · hoy</figcaption></figure>
+        <figure class="figure"><img src="img/03-despues.jpg" width="880" height="495" alt="Render del frente gastronómico con pérgolas, terrazas demarcadas y franja libre junto a las fachadas" loading="lazy" decoding="async"><figcaption class="prop">Frente gastronómico · propuesta</figcaption></figure>
+      </div>
+      <div class="grid7">
+        <article><span class="n">1</span><h3>Peatonalización parcial</h3><p>Piso a un solo nivel en la Carrera 34 y el anillo, con un carril de servicio compartido a 10 km/h para residentes, emergencias y carga en horario fijo.</p><button type="button" class="pill" data-act="pt:2;layer:zonas">Ver en 3D</button></article>
+        <article><span class="n">2</span><h3>Núcleo ecológico central</h3><p>Parque en cuatro lóbulos, eje verde, jardines de lluvia y especies nativas.</p><button type="button" class="pill" data-act="pt:9">Ver en 3D</button></article>
+        <article><span class="n">3</span><h3>Zonas comerciales organizadas</h3><p>Terrazas demarcadas, franja libre junto a fachadas y licencias por metro de frente.</p><button type="button" class="pill" data-act="pt:3">Ver en 3D</button></article>
+        <article><span class="n">4</span><h3>Sistema de residuos</h3><p>Islas de tres colores, recolección diferenciada y compostaje de orgánicos.</p><button type="button" class="pill" data-act="pt:8;layer:residuos">Ver en 3D</button></article>
+        <article><span class="n">5</span><h3>Mobiliario y permanencia</h3><p>Bancas, sombra, luminarias peatonales, luces colgantes y juegos.</p><button type="button" class="pill" data-act="pt:5">Ver en 3D</button></article>
+        <article><span class="n">6</span><h3>Regulación del espacio público</h3><p>Bolardos retráctiles, carga de 5 a 9 a.m., acceso de residentes y emergencias.</p><button type="button" class="pill" data-act="pt:1">Ver en 3D</button></article>
+        <article><span class="n">7</span><h3>Comerciantes y comunidad</h3><p>Tótem de Teddy con QR, mesa de gobernanza y evaluación abierta.</p><button type="button" class="pill" data-act="pt:4">Ver en 3D</button></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="dsec sunk" id="d-zon" aria-labelledby="h-zon">
+    <div class="wrap">
+      <div class="shead">
+        <div><p class="kick">Ordenamiento espacial</p><h2 id="h-zon">Un parque ordenado por funciones</h2></div>
+        <p class="sub">No se elimina el tránsito: se reorganiza priorizando al peatón. Pasa el cursor o toca una zona para resaltarla en la maqueta. La zonificación es compatible con el POT de Santiago de Cali (Acuerdo 0373 de 2014).</p>
+      </div>
+      <div class="zones">
+        <button type="button" class="z eco" data-zone="eco"><i class="sw" aria-hidden="true"></i><h3>Núcleo ecológico</h3><ul><li>Vegetación nativa</li><li>Árboles de sombra</li><li>Jardines y biodiversidad</li><li>Superficies permeables</li></ul><span class="go">Resaltar en 3D</span></button>
+        <button type="button" class="z peat" data-zone="peat"><i class="sw" aria-hidden="true"></i><h3>Corredor peatonal</h3><ul><li>Calles parcialmente peatonalizadas</li><li>Cruces seguros</li><li>Mobiliario urbano</li><li>Caminabilidad continua</li></ul><span class="go">Resaltar en 3D</span></button>
+        <button type="button" class="z econ" data-zone="econ"><i class="sw" aria-hidden="true"></i><h3>Actividad económica</h3><ul><li>Restaurantes y mesas</li><li>Emprendimientos</li><li>Actividades culturales</li><li>Comercio regulado</li></ul><span class="go">Resaltar en 3D</span></button>
+        <button type="button" class="z veh" data-zone="veh"><i class="sw" aria-hidden="true"></i><h3>Zona vehicular controlada</h3><ul><li>Circulación a 10 km/h</li><li>Acceso de residentes</li><li>Servicios de emergencia</li><li>Carga en horario fijo</li></ul><span class="go">Resaltar en 3D</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="dsec" id="d-sis" aria-labelledby="h-sis">
+    <div class="wrap">
+      <div class="shead">
+        <div><p class="kick">Sistemas construidos en el modelo</p><h2 id="h-sis">Tránsito, residuos, agua y biodiversidad</h2></div>
+        <p class="sub">Cada sistema está construido en la maqueta con su referente técnico. El color de cada tarjeta es el mismo de su capa en el menú Capas del 3D.</p>
+      </div>
+      <div class="four sis">
+        <article class="card" style="--lc:#2b2f33"><span class="ico"><i></i>Capa: zonificación</span><h3>Acceso controlado</h3><p>Cruces elevados en cada bocacalle, franja táctil, bolardos retráctiles y señal de prioridad peatonal a 10 km/h. Por el carril de servicio pasan residentes, emergencias y carga de 5 a 9 a.m.</p><a class="refl" href="https://buenosaires.gob.ar/gcaba_historico/desarrollourbano/manualdedisenourbano/paisaje-urbano-morfologia/resolucion-general-de-secciones-de-calles/calle-prioridad-peaton" target="_blank" rel="noopener">Referente: calle de prioridad peatón, Buenos Aires</a><button type="button" class="pill" data-act="pt:1;layer:zonas">Ver en 3D</button></article>
+        <article class="card" style="--lc:#8fe39b"><span class="ico"><i></i>Capa: islas de residuos</span><h3>Puntos limpios soterrados</h3><p>Diez puntos con tres buzones (blanco, negro y verde) sobre tanques bajo el piso de 3.200 a 6.400 L. Se vacían con un camión con elevador, así que no quedan bolsas en la calle.</p><a class="refl" href="https://bogota.gov.co/mi-ciudad/habitat/contenedores-soterrados-en-bogota-asi-funcionan-y-mas-datos-2026" target="_blank" rel="noopener">Referente: contenedores soterrados, Bogotá</a><button type="button" class="pill" data-act="pt:8;layer:residuos">Ver en 3D</button></article>
+        <article class="card" style="--lc:#4fa8ff"><span class="ico"><i></i>Capa: agua lluvia</span><h3>Jardines de lluvia</h3><p>Franjas hundidas con piedra de río y rejillas que llevan el agua del adoquín al jardín. La lámina queda por debajo del nivel del piso y el agua se infiltra en el suelo.</p><a class="refl" href="https://nacto.org/publication/urban-street-stormwater-guide/stormwater-elements/bioretention-swale/" target="_blank" rel="noopener">Referente: bioretention swale, NACTO</a><button type="button" class="pill" data-act="pt:2;layer:agua">Ver en 3D</button></article>
+        <article class="card" style="--lc:#f08a24"><span class="ico"><i></i>Capa: polinizadores</span><h3>Jardín de polinizadores</h3><p>Flores nativas, hotel de insectos, meliponario, casas de aves, colibríes y mariposas, más el compostaje que convierte los orgánicos en abono.</p><a class="refl" href="https://www.cali.gov.co/dagma/publicaciones/166601/proteccion-a-los-polinizadores-en-el-parque-ambiental-corazon-de-pance/" target="_blank" rel="noopener">Referente: DAGMA, Corazón de Pance</a><button type="button" class="pill" data-act="pt:9;layer:bio">Ver en 3D</button></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="dsec white" id="d-amb" aria-labelledby="h-amb">
+    <div class="wrap">
+      <div class="shead">
+        <div><p class="kick">Componente ambiental</p><h2 id="h-amb">Un parque que también funciona como ecosistema</h2></div>
+        <p class="sub">Más allá de lo ornamental: infraestructura ecológica funcional. El agua lluvia se infiltra donde cae en lugar de correr al alcantarillado.</p>
+      </div>
+      <div class="two">
+        <div>
+          <h3 class="sub-h">El recorrido del agua lluvia</h3>
+          <ol class="suds" id="suds">
+            <li><button type="button" data-step="0" class="on"><i>1</i>Lluvia</button></li>
+            <li><button type="button" data-step="1"><i>2</i>Superficies permeables</button></li>
+            <li><button type="button" data-step="2"><i>3</i>Jardines de lluvia</button></li>
+            <li><button type="button" data-step="3"><i>4</i>Infiltración</button></li>
+            <li><button type="button" data-step="4"><i>5</i>Beneficio ambiental</button></li>
+          </ol>
+          <p class="sudsTxt" id="sudsTxt" aria-live="polite"></p>
+          <div class="btns"><button type="button" class="pill" data-act="layer:agua;pt:2">Ver el agua en 3D</button><button type="button" class="pill" data-act="layer:bio;pt:9">Ver polinizadores en 3D</button></div>
+        </div>
+        <div class="card">
+          <h3>Paleta vegetal propuesta</h3>
+          <div class="tblw"><table class="tbl"><thead><tr><th scope="col">Especie</th><th scope="col">Función en el proyecto</th></tr></thead><tbody>
+            <tr><td>Guayacán rosado <i>Tabebuia rosea</i></td><td>Sombra, floración y alimento para polinizadores</td></tr>
+            <tr><td>Guayacán amarillo <i>Handroanthus chrysanthus</i></td><td>Floración e identidad del paisaje</td></tr>
+            <tr><td>Samán <i>Samanea saman</i></td><td>Gran sombra sobre plazas y terrazas</td></tr>
+            <tr><td>Chiminango <i>Pithecellobium dulce</i></td><td>Árbol nativo resistente para borde de calle</td></tr>
+            <tr><td>Heliconias <i>Heliconia spp.</i></td><td>Néctar para colibríes en jardines de lluvia</td></tr>
+            <tr><td>Palma real <i>Roystonea regia</i></td><td>Ejemplares existentes del separador que se conservan</td></tr>
+          </tbody></table></div>
+          <p class="note">Cali tiene 382.655 árboles de 473 especies (DAGMA, abril de 2026). Florecen más de 17.000 guayacanes: más de 10.000 rosados y 2.400 amarillos (septiembre de 2025).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dsec" id="d-disc" aria-labelledby="h-disc">
+    <div class="wrap">
+      <div class="shead">
+        <div><p class="kick">Interdisciplinariedad</p><h2 id="h-disc">Naturaleza, viabilidad y gobernanza</h2></div>
+        <p class="sub">Tres disciplinas sostienen la propuesta: la biología define qué se siembra y cómo se mide, las finanzas muestran si se puede mantener y la ciencia política organiza quién decide.</p>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Disciplinas">
+        <button type="button" role="tab" id="tab-bio" aria-controls="panel-bio" aria-selected="true" data-tab="bio">Biología</button><button type="button" role="tab" id="tab-fin" aria-controls="panel-fin" aria-selected="false" data-tab="fin">Finanzas</button><button type="button" role="tab" id="tab-pol" aria-controls="panel-pol" aria-selected="false" data-tab="pol">Ciencia política</button>
+      </div>
+      <div class="tabp" data-panel="bio" id="panel-bio" role="tabpanel" aria-labelledby="tab-bio">
+        <div class="four">
+          <div class="card"><h3>Selección vegetal</h3><p>Se priorizan especies nativas urbanas.</p></div>
+          <div class="card"><h3>Biodiversidad urbana</h3><p>Plantas funcionales para los polinizadores locales.</p></div>
+          <div class="card"><h3>Conectividad ecológica</h3><p>El eje verde de la Carrera 34 conecta el núcleo del parque con el arbolado del barrio.</p></div>
+          <div class="card"><h3>Evaluación científica</h3><p>Indicadores ecológicos con seguimiento continuo.</p></div>
+        </div>
+        <div class="tblw"><table class="tbl ind"><thead><tr><th scope="col">Indicador</th><th scope="col">Cómo se mide</th><th scope="col">Meta del proyecto</th></tr></thead><tbody>
+          <tr><td>Especies vegetales</td><td>Inventario en parcelas (DAGMA)</td><td>Línea base en campo, luego +30 %</td></tr>
+          <tr><td>Cobertura vegetal</td><td>Imagen satelital y dosel medido en sitio</td><td>Medir antes y después</td></tr>
+          <tr><td>Especies nativas</td><td>% del inventario</td><td>Mayoría nativa en siembras nuevas</td></tr>
+          <tr><td>Polinizadores</td><td>Transectos mensuales (abejas, mariposas, colibríes)</td><td>Aumento sostenido</td></tr>
+          <tr><td>Superficie permeable</td><td>m² de jardín de lluvia y piso drenante</td><td>Calcular sobre los planos finales</td></tr>
+        </tbody></table></div>
+        <p class="note">Las metas son propuestas del equipo. La línea base se levanta en campo, porque el documento original deja estos datos por completar.</p>
+      </div>
+      <div class="tabp" data-panel="fin" id="panel-fin" role="tabpanel" aria-labelledby="tab-fin" hidden>
+        <div class="three">
+          <div class="card"><h3>Inversión inicial</h3><ul><li>Mobiliario y adecuación vial</li><li>Vegetación e iluminación</li><li>Señalización e islas de residuos</li></ul></div>
+          <div class="card"><h3>Costos de operación</h3><ul><li>Mantenimiento de zonas verdes</li><li>Limpieza y gestión de residuos</li><li>Seguridad y mantenimiento urbano</li></ul></div>
+          <div class="card"><h3>Ingresos y financiación</h3><ul><li>Alianzas público-privadas (Ley 1508 de 2012)</li><li>Aportes comerciales y patrocinios</li><li>Eventos y recursos públicos</li></ul></div>
+        </div>
+        <div class="calc" id="calc">
+          <h3>Simulador de viabilidad</h3>
+          <p class="calc-sub">Los supuestos son editables y no son cifras oficiales. Reemplázalos con el presupuesto real.</p>
+          <div class="crow">
+            <label>Área intervenida (m²)<input type="number" id="cArea" value="20100" min="1000" step="100"></label>
+            <label>Costo de obra por m² (COP)<input type="number" id="cM2" value="1200000" min="0" step="50000"></label>
+            <label>Mantenimiento anual (% de la obra)<input type="range" id="cMant" value="4" min="1" max="10" step="0.5"><output id="oMant" for="cMant">4 %</output></label>
+            <label>Locales que aportan<input type="number" id="cLoc" value="60" min="0" step="1"></label>
+            <label>Aporte mensual por local (COP)<input type="number" id="cAp" value="250000" min="0" step="10000"></label>
+            <label>Eventos al año (tipo Borondo)<input type="number" id="cEv" value="12" min="0" step="1"></label>
+            <label>Ingreso neto por evento (COP)<input type="number" id="cEvI" value="8000000" min="0" step="500000"></label>
+          </div>
+          <div class="cout" aria-live="polite">
+            <div><span>Inversión inicial</span><b id="rInv">—</b></div>
+            <div><span>Mantenimiento anual</span><b id="rMan">—</b></div>
+            <div><span>Ingresos anuales</span><b id="rIng">—</b></div>
+            <div><span>Años para recuperar la inversión con el excedente</span><b id="rPay">—</b></div>
+            <div class="hl"><span>Mantenimiento cubierto por los ingresos</span><b id="rCob">—</b><i class="bar"><em id="rBar"></em></i></div>
+          </div>
+        </div>
+      </div>
+      <div class="tabp" data-panel="pol" id="panel-pol" role="tabpanel" aria-labelledby="tab-pol" hidden>
+        <div class="two">
+          <div class="card"><h3>Articulación de actores</h3>
+            <div class="actors"><span class="dk">Alcaldía</span><span>Comerciantes</span><span>Residentes</span><span>Visitantes</span><span>Autoridades ambientales (DAGMA)</span><span class="gr">Comunidad</span></div>
+            <h3 class="sub-h">Principios de política pública</h3>
+            <div class="tags"><span>Participación</span><span>Equidad espacial</span><span>Transparencia</span><span>Corresponsabilidad</span><span>Gobernanza</span><span>Regulación pública</span></div></div>
+          <div class="card gov"><h3>Mesa de Gobernanza del Parque del Perro</h3>
+            <p><b>Regulación:</b> reglas de uso y horarios de carga y descarga.</p>
+            <p><b>Gestión operativa:</b> coordinación comercial y mantenimiento.</p>
+            <p><b>Control ciudadano:</b> mediación de conflictos y evaluación.</p></div>
+        </div>
+        <div class="card"><h3>Marco normativo</h3>
+          <ul class="list norm">
+            <li><b>Decreto 1504 de 1998</b><span>Manejo del espacio público en los planes de ordenamiento.</span></li>
+            <li><b>CONPES 3718 de 2012</b><span>Política Nacional de Espacio Público, con la meta de aumentar los m² por habitante.</span></li>
+            <li><b>Acuerdo 0373 de 2014</b><span>POT de Santiago de Cali.</span></li>
+            <li><b>Ley 1508 de 2012</b><span>Régimen de asociaciones público-privadas para financiar y mantener el proyecto.</span></li>
+            <li><b>Resolución 2184 de 2019</b><span>Código de colores para la separación de residuos (blanco, negro y verde).</span></li>
+          </ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dsec sunk" id="d-ruta" aria-labelledby="h-ruta">
+    <div class="wrap">
+      <div class="shead">
+        <div><p class="kick">Evolución del modelo urbano</p><h2 id="h-ruta">De evento temporal a modelo permanente</h2></div>
+        <p class="sub">La transformación avanza por etapas, y cada una se evalúa antes de pasar a la siguiente. Toca una etapa para ver qué ocurre en ella.</p>
+      </div>
+      <div class="pair">
+        <figure class="figure"><img src="img/05-antes.jpg" width="1600" height="1000" alt="Anillo oriente hoy: terrazas sobre el andén y carros parqueados a ambos lados" loading="lazy" decoding="async"><figcaption>Anillo oriente · hoy</figcaption></figure>
+        <figure class="figure"><img src="img/05-despues.jpg" width="880" height="495" alt="Render del anillo oriente con terrazas bajo los árboles y luces colgantes" loading="lazy" decoding="async"><figcaption class="prop">Anillo oriente · propuesta</figcaption></figure>
+      </div>
+      <ol class="steps" id="steps">
+        <li><button type="button" class="on" data-s="0"><i>1</i>Borondo temporal</button></li>
+        <li><button type="button" data-s="1"><i>2</i>Experimentación</button></li>
+        <li><button type="button" data-s="2"><i>3</i>Evaluación</button></li>
+        <li><button type="button" data-s="3"><i>4</i>Regulación</button></li>
+        <li><button type="button" data-s="4"><i>5</i>Modelo permanente</button></li>
+      </ol>
+      <p class="stepTxt" id="stepTxt" aria-live="polite"></p>
+      <div class="two ba">
+        <div class="card before"><h3><i>Antes</i>Activación puntual</h3><ul class="list"><li>Cierres viales esporádicos de fin de semana.</li><li>Soluciones temporales sin infraestructura fija.</li><li>Regreso inmediato al conflicto vehicular.</li></ul></div>
+        <div class="card after"><h3><i>Después</i>Institucionalización 24/7</h3><ul class="list"><li>Peatonalización regulada y comercio ordenado.</li><li>Permanencia, cultura y gestión de residuos.</li><li>Normas y horarios claros para los comerciantes.</li></ul><button type="button" class="pill" data-act="night">Ver el parque de noche</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dsec white" id="d-imp" aria-labelledby="h-imp">
+    <div class="wrap">
+      <div class="shead">
+        <div><p class="kick">Valor integral de la propuesta</p><h2 id="h-imp">¿Qué cambia con la propuesta?</h2></div>
+        <p class="sub">Los beneficios se cruzan: el verde que baja la temperatura también atrae visitantes, y las reglas claras protegen tanto al comercio como a los vecinos.</p>
+      </div>
+      <div class="four imp">
+        <div class="card amb"><h3>Ambiental</h3><ul><li>Mayor cobertura vegetal</li><li>Más biodiversidad urbana</li><li>Suelo más permeable</li><li>Mejor manejo de residuos</li></ul></div>
+        <div class="card soc"><h3>Social</h3><ul><li>Más espacio para caminar</li><li>Espacios de encuentro</li><li>Mayor apropiación ciudadana</li><li>Mejor convivencia urbana</li></ul></div>
+        <div class="card eco"><h3>Económico</h3><ul><li>Comercio local fortalecido</li><li>Visitantes que se quedan más tiempo</li><li>Nuevos emprendimientos</li><li>Un modelo sostenible propio</li></ul></div>
+        <div class="card gob"><h3>Gobernanza</h3><ul><li>Participación ciudadana</li><li>Reglas claras de uso</li><li>Coordinación entre actores</li><li>Mayor corresponsabilidad</li></ul></div>
+      </div>
+      <h3 class="refh">Referentes que respaldan el modelo</h3>
+      <div class="three">
+        <a class="card ref" href="https://ajuntament.barcelona.cat/superilles/en/noticia/1238916" target="_blank" rel="noopener"><b>Superilles, Barcelona</b><span>Calles devueltas al peatón: el NO₂ promedio bajó 31 % en estaciones de tráfico y 34 % en estaciones de fondo frente a 2015.</span><small>Ajuntament de Barcelona ↗</small></a>
+        <a class="card ref" href="https://globaldesigningcities.org/publication/global-street-design-guide/streets/shared-streets/commercial-shared-streets/" target="_blank" rel="noopener"><b>Calles comerciales compartidas</b><span>Guía de diseño para calles donde peatones, comercio y vehículos lentos conviven a un solo nivel.</span><small>GDCI / NACTO ↗</small></a>
+        <a class="card ref" href="https://interregeurope.eu/good-practices/pontevedra-ok-peatonalization-project" target="_blank" rel="noopener"><b>Pontevedra, España</b><span>Ciudad que dejó de estar invadida por el carro y hoy es referente internacional de calidad urbana.</span><small>Interreg Europe ↗</small></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing" aria-label="Cierre">
+    <div class="wrap"><p>No se trata de cerrar calles. Se trata de abrir espacio para las personas.</p><small>Parque del Perro 24/7 · Volver al Corazón</small></div>
+  </section>
+
+  <section class="dsec" id="d-ref" aria-labelledby="h-ref">
+    <div class="wrap">
+      <div class="shead">
+        <div><p class="kick">Referencias</p><h2 id="h-ref">Fuentes</h2></div>
+        <p class="sub">Cada dato de la página viene de una fuente pública. Las cifras del simulador son supuestos del equipo.</p>
+      </div>
+      <ol class="refs">
+      <li>Alcaldía de Santiago de Cali (11 sep. 2026). <a href="https://www.cali.gov.co/gobierno/publicaciones/194301/borondo-impulso-la-reactivacion-economica-de-emprendedores-y-restaurantes-en-el-parque-del-perro/" target="_blank" rel="noopener">Borondo impulsó la reactivación económica de emprendedores y restaurantes en el Parque del Perro</a>.</li>
+      <li>Alcaldía de Santiago de Cali (23 oct. 2023). <a href="https://www.cali.gov.co/publicaciones/179128/alcaldia-reevalua-retorno-del-paso-vehicular-en-el-parque-del-perro/" target="_blank" rel="noopener">Alcaldía reevalúa retorno del paso vehicular en el Parque del Perro</a>.</li>
+      <li>Occidente (8 feb. 2022). <a href="https://occidente.co/cali/via-peatonal-en-el-parque-del-perro-divide-opiniones-en-cali/" target="_blank" rel="noopener">Vía peatonal en el Parque del Perro divide opiniones en Cali</a>.</li>
+      <li>Alcaldía de Santiago de Cali (16 may. 2025). <a href="https://www.cali.gov.co/salud/publicaciones/186846/parque-del-perro-cambia-de-sentido-vial-para-garantizar-una-mayor-fluidez-en-la-movilidad/" target="_blank" rel="noopener">Parque del Perro cambia de sentido vial</a>.</li>
+      <li>El País (2012, act. 2023). <a href="https://www.elpais.com.co/cali/en-por-cada-ciudadano-hay-2-46-metros-de-espacio-publico.html" target="_blank" rel="noopener">En Cali por cada ciudadano hay 2,46 metros de espacio público</a>.</li>
+      <li>Observatorio de Espacio Público de Cali (2023). <a href="https://www.cali.gov.co/publicaciones/180151/indicador-del-espacio-publico-efectivo-en-santiago-de-cali/" target="_blank" rel="noopener">Indicador del espacio público efectivo en Santiago de Cali</a>.</li>
+      <li>Alcaldía de Santiago de Cali, DAGMA (28 abr. 2026). <a href="https://www.cali.gov.co/publicaciones/192341/la-singularidad-de-la-riqueza-forestal-en-cali-mas-de-382-mil-arboles-473-especies-diferentes-y-18-individuos-catalogados-como-unicos/" target="_blank" rel="noopener">Más de 382 mil árboles y 473 especies</a>.</li>
+      <li>Alcaldía de Santiago de Cali (11 sep. 2025). <a href="https://www.cali.gov.co/salud/publicaciones/188900/mas-de-17000-guayacanes-florecen-y-tinen-de-colores-las-calles-de-cali/" target="_blank" rel="noopener">Más de 17.000 guayacanes florecen en Cali</a>.</li>
+      <li>Ajuntament de Barcelona. <a href="https://ajuntament.barcelona.cat/superilles/en/noticia/1238916" target="_blank" rel="noopener">Air pollution in the city down by more than 30%</a>; ISGlobal (2022), <a href="https://ajuntament.barcelona.cat/superilles/sites/default/files/ISGlobal_Informe_cientific_impacte_salut_superilles_maig2022.pdf" target="_blank" rel="noopener">informe de impacto en salud de las supermanzanas</a>.</li>
+      <li>Global Designing Cities Initiative / NACTO. <a href="https://globaldesigningcities.org/publication/global-street-design-guide/streets/shared-streets/commercial-shared-streets/" target="_blank" rel="noopener">Global Street Design Guide: Commercial Shared Streets</a>.</li>
+      <li>Interreg Europe. <a href="https://interregeurope.eu/good-practices/pontevedra-ok-peatonalization-project" target="_blank" rel="noopener">Pontevedra OK Peatonalization Project</a>.</li>
+      <li>MITECO, España. <a href="https://www.miteco.gob.es/en/agua/temas/concesiones-y-autorizaciones/vertidos-de-aguas-residuales/vertido-desbordamiento-sistema-saneamiento-dss/vertidos-dss-sistemas-urbanos-drenaje-sostenible-suds.html" target="_blank" rel="noopener">Sistemas Urbanos de Drenaje Sostenible (SUDS)</a>.</li>
+      <li>Alcaldía de Bogotá (13 feb. 2026). <a href="https://bogota.gov.co/mi-ciudad/habitat/contenedores-soterrados-en-bogota-asi-funcionan-y-mas-datos-2026" target="_blank" rel="noopener">Contenedores soterrados en Bogotá: así funcionan</a>.</li>
+      <li>NACTO. <a href="https://nacto.org/publication/urban-street-stormwater-guide/stormwater-elements/bioretention-swale/" target="_blank" rel="noopener">Urban Street Stormwater Guide: Bioretention Swale</a>.</li>
+      <li>Gobierno de la Ciudad de Buenos Aires. <a href="https://buenosaires.gob.ar/gcaba_historico/desarrollourbano/manualdedisenourbano/paisaje-urbano-morfologia/resolucion-general-de-secciones-de-calles/calle-prioridad-peaton" target="_blank" rel="noopener">Manual de diseño urbano: calle de prioridad peatón</a>.</li>
+      <li>DAGMA (17 ene. 2022). <a href="https://www.cali.gov.co/dagma/publicaciones/166601/proteccion-a-los-polinizadores-en-el-parque-ambiental-corazon-de-pance/" target="_blank" rel="noopener">Protección a los polinizadores en el Parque ambiental Corazón de Pance</a>.</li>
+      <li>Normas colombianas: Decreto 1504 de 1998; CONPES 3718 de 2012; Acuerdo Municipal 0373 de 2014 (POT de Cali); Ley 1508 de 2012; Resolución 2184 de 2019.</li>
+      <li>Trazado urbano: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">colaboradores de OpenStreetMap</a> (ODbL).</li>
+      </ol>
+    </div>
+  </section>
+
+  </main>
+
+  <footer class="dfoot">
+    <div class="wrap">
+      <div class="fgrid">
+        <div><a class="dlogo" href="#dossier"><svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 57C14 44 5 34 5 21.5 5 12.7 11.7 6 20 6c5 0 9.3 2.5 12 6.5C34.7 8.5 39 6 44 6c8.3 0 15 6.7 15 15.5C59 34 50 44 32 57z" fill="#e3764a"/><g fill="#fff"><ellipse cx="32" cy="36.5" rx="7.6" ry="6.4"/><ellipse cx="22.6" cy="27.5" rx="3.3" ry="4.1" transform="rotate(-18 22.6 27.5)"/><ellipse cx="28.6" cy="21.6" rx="3.2" ry="4.2"/><ellipse cx="35.4" cy="21.6" rx="3.2" ry="4.2"/><ellipse cx="41.4" cy="27.5" rx="3.3" ry="4.1" transform="rotate(18 41.4 27.5)"/></g></svg><span><b>Parque del Perro 24/7</b><small>Volver al Corazón · Cali</small></span></a><p>Propuesta de urbanismo sostenible para la Carrera 34 y la rotonda del Parque del Perro, barrio San Fernando.</p><p><a href="https://github.com/Juancal1728/Parque-del-Perro-Pro-Cali" target="_blank" rel="noopener">Código del sitio en GitHub ↗</a></p></div>
+        <div><h4>Proyecto</h4><p>Universidad Icesi · Proyecto final grupal<br>Luna Villafañe Ardila y Camila Solarte<br>Biología, finanzas y ciencia política</p></div>
+        <div><h4>Imágenes y datos</h4><p>Fotos de hoy: Google Street View (uso académico). Propuesta: renders generados con IA. Trazado urbano: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">colaboradores de OpenStreetMap</a>.</p></div>
+      </div>
+      <p class="q">“Una solución urbana necesita naturaleza, viabilidad y gobernanza.”</p>
+    </div>
+  </footer>
+</div>
+
+<script>
+window.PUNTOS = [
+  {n:0, tramo:"", zona:"Carrera 34 + rotonda del Parque del Perro · Comuna 19", titulo:"De zona de paso a espacio de encuentro",
+   hoy:"El parque concentra comercio, gastronomía, peatones y carros en el mismo espacio: andenes estrechos y discontinuos, parqueo sobre el frente de los locales y residuos sin manejo. El resultado es un conflicto permanente por el uso del espacio público.",
+   prop:"Unos 20.000 m² reorganizados en cuatro zonas: núcleo ecológico, corredor peatonal continuo, frentes de actividad económica ordenados y una zona vehicular controlada. No se elimina el tránsito: se reorganiza priorizando al peatón.",
+   ges:"Mesa de Gobernanza del Parque del Perro (Alcaldía, comerciantes, residentes, autoridad ambiental y comunidad) con reglas de uso, horarios de carga y evaluación periódica.",
+   chips:["Peatonalización parcial","Núcleo ecológico","Comercio regulado","Residuos","24/7"], img:"04"},
+  {n:1, tramo:"a", zona:"Tramo A · Corredor peatonal", titulo:"Puerta sur · Carulla (Calle 4B)",
+   hoy:"Taxis y motos sobre el andén, cruce largo para el peatón y un borde comercial que da la espalda a la calle.",
+   prop:"Plaza de acceso a un solo nivel con franja táctil, bolardos retráctiles que controlan el ingreso vehicular, biciparqueadero cubierto y jardines de lluvia con heliconias.",
+   ges:"Ingreso vehicular solo para residentes, emergencias y carga de 5 a 9 a.m.; los bolardos se operan desde la Mesa de Gobernanza.",
+   chips:["Acceso controlado","Biciparqueadero","Franja táctil","Jardín de lluvia"]},
+  {n:2, tramo:"a", zona:"Tramo A · Núcleo ecológico lineal", titulo:"Eje verde · Carrera 34 con Calle 4",
+   hoy:"Doble calzada con un separador angosto de palmas; el verde es ornamental y el piso es impermeable.",
+   prop:"El separador se vuelve un eje verde de 7 m con sendero de piedra, bancas de madera, bolardos de luz y especies nativas para polinizadores. Un carril de servicio compartido a 10 km/h permite la carga en horario y el paso de emergencias.",
+   ges:"Mantenimiento de zonas verdes financiado con aportes de los comerciantes del corredor y alianzas público-privadas (Ley 1508 de 2012).",
+   chips:["Eje de palmas","Sendero","Carril de servicio 10 km/h","Polinizadores"]},
+  {n:3, tramo:"a", zona:"Tramo A · Actividad económica", titulo:"Frente gastronómico · Calle 3A",
+   hoy:"Bahías de parqueo pintadas frente a los restaurantes y mesas que invaden el andén.",
+   prop:"Las bahías se vuelven terrazas demarcadas bajo pérgolas con buganvilia y luces, separadas por materas; queda una franja libre continua junto a las fachadas y un poste inteligente con sensor de ruido.",
+   ges:"Licencias de ocupación por metro de frente, con horarios y topes de ruido medidos por los sensores; lo recaudado vuelve al mantenimiento del bulevar.",
+   chips:["Terrazas demarcadas","Pérgolas","Franja libre","Sensor de ruido"]},
+  {n:4, tramo:"b", zona:"Tramo B · Corredor peatonal", titulo:"Llegada al corazón",
+   hoy:"Cebra larga e isla de tráfico frente al parque: el peatón llega en desventaja.",
+   prop:"Plaza de llegada a nivel en adoquín terracota con el corazón dibujado en el piso, espejo de agua y el tótem de Teddy con pantalla y código QR para la participación ciudadana.",
+   ges:"El tótem publica horarios, reglas de uso y los indicadores del parque, y recibe propuestas de la comunidad.",
+   chips:["Plaza a nivel","Corazón en el piso","Tótem de Teddy","Participación"]},
+  {n:5, tramo:"b", zona:"Tramo B · Actividad económica", titulo:"Anillo oriente · bares y terrazas",
+   hoy:"Terrazas sobre el andén y carros parqueados a ambos lados del anillo.",
+   prop:"Calle compartida bajo los árboles: terrazas demarcadas con materas, paso libre entre terrazas y parque, luces colgantes y luminarias peatonales.",
+   ges:"Horario nocturno concertado con los residentes y control de ruido en tiempo real: el parque vive 24/7 sin romper la convivencia.",
+   chips:["Calle compartida","Terrazas","Luces colgantes","Convivencia"]},
+  {n:6, tramo:"b", zona:"Tramo B · Actividad económica", titulo:"Calle 3 Oeste · comercio norte",
+   hoy:"Las materas ya separan, pero las motos ocupan el frente de los locales.",
+   prop:"Bulevar comercial continuo en losa gris clara, materas de concreto con bambú, árboles de sombra en materas y un parqueadero de motos al final, fuera del anillo.",
+   ges:"Parqueo de motos ordenado y señalizado; el frente de los locales queda para caminar y para mesas autorizadas.",
+   chips:["Bulevar comercial","Parqueo de motos","Bambú","Sombra"]},
+  {n:7, tramo:"b", zona:"Tramo B · Núcleo ecológico", titulo:"Calle 3 Oeste · borde occidente",
+   hoy:"Una fila de carros parqueados contra el parque y el higuerón sin espacio a su alrededor.",
+   prop:"Franja verde que une el parque con la calle: parque infantil de madera natural, columpios sobre caucho y el higuerón protegido como árbol patrimonial.",
+   ges:"El arbolado se monitorea con el DAGMA; las familias del barrio participan en la apropiación del espacio infantil.",
+   chips:["Juegos infantiles","Franja verde","Árbol patrimonial"]},
+  {n:8, tramo:"b", zona:"Tramo B · Actividad económica", titulo:"Anillo sur · café y flores",
+   hoy:"Carros, motos y vallas pegados al parque; los residuos de los locales quedan en la calle.",
+   prop:"Plaza del café y del puesto de flores con mesas públicas e isla de residuos en tres colores (aprovechables, no aprovechables y orgánicos) conectada al compostaje del parque.",
+   ges:"Separación en la fuente y recolección diferenciada; los orgánicos alimentan el compost de los jardines.",
+   chips:["Plaza del café","Flores","Isla de residuos","Compostaje"]},
+  {n:9, tramo:"b", zona:"El interior · Núcleo ecológico", titulo:"Los lóbulos del corazón",
+   hoy:"Prados y senderos sin un centro claro; poca biodiversidad y suelo compactado.",
+   prop:"La Plaza de Teddy al centro con bancas curvas y anillo de flores, y un uso por lóbulo: encuentro, zona canina, juego y estancia. Guayacanes, samanes y heliconias suman sombra y alimento para polinizadores.",
+   ges:"Indicadores de biodiversidad con seguimiento continuo: especies, cobertura, nativas, polinizadores y superficie permeable.",
+   chips:["Plaza de Teddy","Zona canina","Biodiversidad","Superficie permeable"]}
+];
+</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/utils/BufferGeometryUtils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/shaders/GammaCorrectionShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/loaders/RGBELoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/utils/SkeletonUtils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/shaders/FXAAShader.js"></script>
+<script src="osm_cali.js"></script>
+<script src="recorrido3d.js"></script>
+<script>
+/* ===== interacción del dossier y enlace con la maqueta ===== */
+(function () {
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const toScene = () => document.getElementById('d-3d').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const run = act => { const V = window.VAC; if (!V) return; toScene();
+    act.split(';').forEach(a => { const [k, v] = a.split(':');
+      if (k === 'pt') setTimeout(() => V.goPoint(+v), 450);
+      if (k === 'hoy') { V.setMode(false); setTimeout(() => V.goPoint(+v), 450); }
+      if (k === 'layer') { ['zonas', 'agua', 'residuos', 'bio'].forEach(l => V.setLayer(l, l === v)); }
+      if (k === 'night') { const b = document.getElementById('btnNight'); if (b && !b.classList.contains('on')) b.click(); setTimeout(() => V.goPoint(5), 450); } }); };
+  $$('[data-act]').forEach(b => b.addEventListener('click', () => run(b.dataset.act)));
+  // zonas: resaltar en el 3D
+  $$('.z').forEach(z => { const k = z.dataset.zone;
+    z.addEventListener('mouseenter', () => window.VAC && (window.VAC.setLayer('zonas', true), window.VAC.highlightZone(k)));
+    z.addEventListener('mouseleave', () => window.VAC && window.VAC.highlightZone(null));
+    z.addEventListener('click', () => { if (!window.VAC) return; toScene(); window.VAC.setLayer('zonas', true); window.VAC.highlightZone(k); setTimeout(() => window.VAC.overview(), 450); }); });
+  // ciclo del agua
+  const SUDS = ['La lluvia cae sobre el adoquín, las terrazas y el parque. Hoy corre por el asfalto hacia el alcantarillado y arrastra residuos.',
+    'Adoquín con junta abierta y losas drenantes: el agua atraviesa el piso en vez de correr por encima.',
+    'Franjas de jardín más bajas que el piso recogen el agua de cada tramo del bulevar; las heliconias y los pastos nativos la filtran.',
+    'El suelo vegetal y la grava devuelven el agua al subsuelo poco a poco y bajan los picos de caudal en el alcantarillado.',
+    'Menos encharcamientos, suelo más fresco bajo los árboles, más humedad para la vegetación y un hábitat para polinizadores.'];
+  const sT = $('#sudsTxt'); const sSet = i => { $$('#suds button').forEach((b, j) => { b.classList.toggle('on', j === i); b.setAttribute('aria-pressed', j === i); }); sT.textContent = SUDS[i]; };
+  $$('#suds button').forEach(b => b.addEventListener('click', () => sSet(+b.dataset.step))); sSet(0);
+  // pestañas
+  const tabs = $$('.tabs [data-tab]'); const pick = t => { tabs.forEach(x => { x.setAttribute('aria-selected', x === t); x.tabIndex = x === t ? 0 : -1; }); $$('.tabp').forEach(p => p.hidden = p.dataset.panel !== t.dataset.tab); };
+  tabs.forEach((t, i) => { t.tabIndex = i ? -1 : 0; t.addEventListener('click', () => pick(t)); t.addEventListener('keydown', e => { const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (!d) return; const n = tabs[(i + d + tabs.length) % tabs.length]; pick(n); n.focus(); }); });
+  // ruta 24/7
+  const ST = ['Cierres de fin de semana como Borondo: se prueba la demanda, se miden ventas, aforos y residuos, y se escucha a los vecinos.',
+    'Urbanismo táctico durante 6 a 12 meses: pintura, materas y mobiliario móvil en el trazado definitivo, con horarios de carga piloto.',
+    'La Mesa de Gobernanza revisa indicadores: flujo peatonal, ventas, ruido nocturno, residuos separados, quejas y biodiversidad.',
+    'Se adoptan reglas: licencias por metro de frente, horarios de carga de 5 a 9 a.m., topes de ruido y aportes al mantenimiento.',
+    'Obra fija: piso a un solo nivel, núcleo ecológico, islas de residuos e iluminación. El parque funciona 24/7 con reglas claras.'];
+  const tT = $('#stepTxt'); const tSet = i => { $$('#steps button').forEach((b, j) => { b.classList.toggle('on', j === i); b.classList.toggle('done', j < i); b.setAttribute('aria-pressed', j === i); }); tT.textContent = ST[i]; };
+  $$('#steps button').forEach(b => b.addEventListener('click', () => tSet(+b.dataset.s))); tSet(0);
+  // simulador
+  const f = n => '$ ' + Math.round(n).toLocaleString('es-CO'), g = id => +document.getElementById(id).value || 0;
+  function calc() { const inv = g('cArea') * g('cM2'), man = inv * g('cMant') / 100, ing = g('cLoc') * g('cAp') * 12 + g('cEv') * g('cEvI');
+    $('#oMant').textContent = g('cMant') + ' %'; $('#rInv').textContent = f(inv); $('#rMan').textContent = f(man) + ' / año'; $('#rIng').textContent = f(ing) + ' / año';
+    const cob = man ? ing / man * 100 : 0; $('#rCob').textContent = Math.round(cob) + ' %'; $('#rBar').style.width = Math.min(100, cob) + '%';
+    const ex = ing - man; $('#rPay').textContent = ex > 0 ? (inv / ex).toFixed(1) + ' años' : 'No se recupera con estos supuestos'; }
+  $$('#calc input').forEach(i => i.addEventListener('input', calc)); calc();
+  // contadores y aparición
+  const io = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; e.target.classList.add('in');
+    e.target.querySelectorAll('[data-count]').forEach(el => { const end = +el.dataset.count, t0 = performance.now(); const step = t => { const k = Math.min(1, (t - t0) / 1200); el.textContent = Math.round(end * (1 - Math.pow(1 - k, 3))).toLocaleString('es-CO'); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); delete el.dataset.count; });
+    io.unobserve(e.target); }), { threshold: 0.15 });
+  $$('.dhero, .dsec').forEach(s => io.observe(s));
+  const hc = document.getElementById('hcmp'); if (hc) { const r = hc.querySelector('input'); r.addEventListener('input', () => hc.style.setProperty('--x', r.value + '%'));
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) { let t0 = null; const step = t => { t0 = t0 || t; const k = Math.min(1, (t - t0) / 1400), e = 1 - Math.pow(1 - k, 3), v = 82 - 36 * e; hc.style.setProperty('--x', v + '%'); r.value = v; if (k < 1) requestAnimationFrame(step); }; setTimeout(() => requestAnimationFrame(step), 500); } }
+  // navegación activa
+  const navs = $$('.dlinks a'); const io2 = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) navs.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id)); }), { rootMargin: '-40% 0px -55% 0px' });
+  $$('.dsec[id]').forEach(s => io2.observe(s));
+})();
+</script>
+</body>
+</html>
