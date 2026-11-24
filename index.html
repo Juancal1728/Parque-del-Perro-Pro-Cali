@@ -951,6 +951,15 @@ body::before{background:var(--p-paper)}
 .band3d .app .brand{display:flex;align-items:center;gap:10px}
 @media (max-width:900px){.band3d .app .brand{display:none}}
 @media (max-width:430px){.dlogo .logo{height:28px!important}.dlogo b{font-size:15.5px}}
+/* QR en el pie */
+.dfoot .fgrid{grid-template-columns:repeat(2,minmax(0,.7fr)) minmax(0,1.15fr) minmax(0,.75fr) minmax(0,1.15fr)}
+.fqr a{display:block;width:132px;background:#fff;padding:8px;border-radius:6px;transition:transform .2s var(--ease-out)}
+.fqr img{display:block;width:100%;height:auto;image-rendering:pixelated}
+.fqr p{margin-top:12px;font-size:13px;max-width:18ch}
+@media (hover:hover) and (pointer:fine){.fqr a:hover{transform:translateY(-2px)}}
+@media (max-width:1100px){.dfoot .fgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:900px){.dfoot .fgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.dfoot .fgrid>.fqr{grid-column:auto}.fqr a{width:120px}}
 
 @media (max-width:900px){.dhero::before{background-image:url(img/04-antes-900.webp)}}
 </style>
@@ -1446,6 +1455,7 @@ body::before{background:var(--p-paper)}
           <nav aria-label="La propuesta"><h4>La propuesta</h4><a href="#d-3d">Recorrido 3D</a><a href="#d-diag">Diagnóstico</a><a href="#d-ante">Antecedentes</a><a href="#d-prop">Propuesta</a><a href="#d-zon">Zonas</a></nav>
           <nav aria-label="Profundizar"><h4>Profundizar</h4><a href="#d-amb">Ambiente</a><a href="#d-disc">Disciplinas</a><a href="#d-ruta">Ruta</a><a href="#d-imp">Impacto</a><a href="#d-ref">Fuentes</a></nav>
           <div><h4>Proyecto</h4><p>Carrera 34 y rotonda del Parque del Perro, barrio San Fernando, Santiago de Cali.</p><p>Universidad Icesi · Ciencia, Tecnología y Sociedad. Biología, finanzas, ciencia política, ingeniería de sistemas y economía.</p><p><a href="https://github.com/Juancal1728/Parque-del-Perro-Pro-Cali" target="_blank" rel="noopener">Código en GitHub ↗</a></p></div>
+          <div class="fqr"><h4>Escanea</h4><a href="https://qrfy.io/NCo4HvyhKK" target="_blank" rel="noopener" aria-label="Código QR del proyecto (se abre en otra pestaña)"><img src="img/qr.png" width="512" height="512" alt="Código QR del proyecto Parque del Perro 24/7" loading="lazy"></a><p>Ábrelo con la cámara de tu celular.</p></div>
           <div><h4>Imágenes y datos</h4><p>Fotos de hoy: Google Street View (uso académico). Propuesta: renders generados con IA.</p><p>Marcadores: silueta de Teddy trazada de una <a href="https://commons.wikimedia.org/wiki/File:30-029_Parque_Perro_cali.JPG" target="_blank" rel="noopener">foto de Rafaelpalacios</a> (CC BY-SA 3.0). Mapa: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>.</p></div>
         </div>
         <div class="fbot">
