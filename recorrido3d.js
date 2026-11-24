@@ -51,7 +51,7 @@ const sky = new T.Mesh(new T.SphereGeometry(2200, 32, 16), new T.ShaderMaterial(
   fragmentShader: 'uniform vec3 top; uniform vec3 mid; uniform vec3 bot; uniform float uLin; varying vec3 vP; void main(){ float h = vP.y; vec3 c = h>0.08 ? mix(mid, top, smoothstep(0.08,0.6,h)) : mix(bot, mid, smoothstep(-0.05,0.08,h)); c = mix(c, pow(c, vec3(2.2)) * 1.35, uLin); gl_FragColor = vec4(c,1.); }'
 }));
 scene.add(sky);
-scene.fog = new T.Fog(0xeedcc0, 380, 1500);
+scene.fog = new T.Fog(0xe9dcc6, 560, 2100);
 
 /* ============ LUCES ============ */
 const hemi = new T.HemisphereLight(0xffe9cf, 0x5f6a4a, 0.62); scene.add(hemi);
@@ -137,7 +137,7 @@ const facadeSets = WALLS.map(c => ({ map: facade(c, false), em: facade(c, true) 
 /* ============ MATERIALES ============ */
 const std = (o) => new T.MeshStandardMaterial(Object.assign({ roughness: 0.9 }, o));
 const M = {
-  ground: std({ color: 0xcbc2b1, roughness: 1 }),
+  ground: std({ color: 0xb8ae9a, roughness: 1 }),
   asphalt: std({ color: 0x77736d, roughness: 1 }),
   curb: std({ color: 0xe6dfd2 }),
   pavers: std(Object.assign(pavers('#c4774c', '#7d4a31'), { roughness: 1 })),
@@ -1356,7 +1356,7 @@ controls.addEventListener('start', () => { if (playing) stop(); fly = null; ui.h
 
 /* ============ DÍA / NOCHE ============ */
 let composer = null, bloom = null, sao = null, fxaa = null, grade = null;
-const GRADE = { uniforms: { tDiffuse: { value: null }, exposure: { value: 0.94 }, sat: { value: 0.98 }, contrast: { value: 1.06 }, vig: { value: 0.55 }, tint: { value: new T.Color(1.0, 0.985, 0.95) } },
+const GRADE = { uniforms: { tDiffuse: { value: null }, exposure: { value: 0.95 }, sat: { value: 1.06 }, contrast: { value: 1.12 }, vig: { value: 0.7 }, tint: { value: new T.Color(1.0, 0.985, 0.95) } },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
   fragmentShader: `uniform sampler2D tDiffuse; uniform float exposure, sat, contrast, vig; uniform vec3 tint; varying vec2 vUv;
   vec3 vacRRT(vec3 v){ vec3 a = v * (v + 0.0245786) - 0.000090537; vec3 b = v * (0.983729 * v + 0.4329510) + 0.238081; return a / b; }
@@ -1380,13 +1380,13 @@ function setupComposer() {
 function applyNight(on) {
   night = on; ui.night.classList.toggle('on', on); ui.night.innerHTML = on ? '☀ <span class="t">Día</span>' : '☾ <span class="t">Noche</span>';
   skyU.top.value.set(on ? 0x0b1630 : 0x5f9bd2); skyU.mid.value.set(on ? 0x1c2c4a : 0xd6e4ea); skyU.bot.value.set(on ? 0x3a3448 : 0xf6d9b0);
-  scene.fog.color.set(on ? 0x1b2236 : 0xeedcc0);
+  scene.fog.color.set(on ? 0x1b2236 : 0xe9dcc6);
   hemi.intensity = on ? 0.16 : (REAL.env ? 0.32 : 0.62); hemi.color.set(on ? 0x8fa6d8 : 0xffe9cf);
   sun.intensity = on ? 0.32 : 2.35; sun.color.set(on ? 0x9db6ff : 0xffc98a); fill.intensity = on ? 0.08 : 0.25;
   winMats.forEach(m => m.emissiveIntensity = on ? 1.0 : 0);
   variants(M.glass, m => m.emissiveIntensity = on ? 2.2 : 0.25); variants(M.lamp, m => m.emissiveIntensity = on ? 4 : 0.4);
   variants(glowMat, m => m.opacity = on ? 0.8 : 0); variants(M.bulb, m => m.color.set(on ? 0xffe3a0 : 0xf5efe2));
-  renderer.toneMappingExposure = on ? 1.15 : 1.0; if (grade) grade.uniforms.exposure.value = on ? 1.1 : 0.94; if (bloom) bloom.enabled = on;
+  renderer.toneMappingExposure = on ? 1.15 : 1.0; if (grade) grade.uniforms.exposure.value = on ? 1.1 : 0.95; if (bloom) bloom.enabled = on;
   document.querySelector('.stage').style.background = on ? 'linear-gradient(180deg,#0b1630,#2a2a3c)' : '';
 }
 ui.night.onclick = () => applyNight(!night);
