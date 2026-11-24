@@ -35,4 +35,4 @@ GitHub Pages publica la rama `main` desde la raíz (Settings → Pages → Deplo
 
 ## Créditos
 
-Logo: silueta de la estatua de Teddy, trazada a partir de la foto "30-029 Parque Perro cali.JPG" de Rafaelpalacios en Wikimedia Commons (CC BY-SA 3.0). Trazado urbano © colaboradores de OpenStreetMap (ODbL).
+Marcadores de puntos clave: silueta de la estatua de Teddy, trazada a partir de la foto "30-029 Parque Perro cali.JPG" de Rafaelpalacios en Wikimedia Commons (CC BY-SA 3.0). Trazado urbano © colaboradores de OpenStreetMap (ODbL).

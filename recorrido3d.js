@@ -28,7 +28,7 @@ P[5] = [57, -19]; P[6] = [2, -66]; P[7] = [-56, -13]; P[8] = [-9, 52]; P[9] = [0
 /* ============ RENDERER ============ */
 const isMobile = matchMedia('(max-width: 900px)').matches;
 const renderer = new T.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 1.75));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.25 : 1.75));
 renderer.outputEncoding = T.sRGBEncoding;
 renderer.toneMapping = T.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
@@ -57,7 +57,7 @@ scene.fog = new T.Fog(0xe9dcc6, 560, 2100);
 const hemi = new T.HemisphereLight(0xffe9cf, 0x5f6a4a, 0.62); scene.add(hemi);
 const sun = new T.DirectionalLight(0xffc98a, 2.35);
 sun.position.set(-280, 175, 130); sun.castShadow = true;
-sun.shadow.mapSize.set(isMobile ? 2048 : 4096, isMobile ? 2048 : 4096);
+sun.shadow.mapSize.set(isMobile ? 1024 : 4096, isMobile ? 1024 : 4096);
 Object.assign(sun.shadow.camera, { left: -340, right: 340, top: 340, bottom: -340, near: 40, far: 1100 });
 sun.shadow.bias = -0.0003; sun.shadow.normalBias = 0.5; sun.shadow.radius = 3;
 sun.target.position.set(70, 0, 110); scene.add(sun, sun.target);
@@ -1299,7 +1299,7 @@ function showPanel(n) {
   $('pzone').textContent = d.zona; $('ptitle').textContent = d.titulo; $('phoy').textContent = d.hoy; $('pprop').textContent = d.prop; if ($('pges')) $('pges').textContent = d.ges || '';
   $('pchips').innerHTML = (d.chips || []).map(c => `<span>${c}</span>`).join('');
   const im = n === 0 ? d.img : pad(n);
-  $('imgBefore').src = `img/${im}-antes.jpg`; $('imgAfter').src = `img/${im}-despues.jpg`;
+  $('imgBefore').src = `img/${im}-antes${isMobile ? '-900' : ''}.webp`; $('imgAfter').src = `img/${im}-despues.webp`;
   $('imgBefore').alt = `Punto ${n} hoy`; $('imgAfter').alt = `Punto ${n} con la propuesta`;
   [...pnums.children].forEach(b => { const on = +b.dataset.n === n; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
   document.querySelectorAll('.ptabs button').forEach(b => b.classList.toggle('on', (n >= 1 && n <= 3 && b.dataset.tramo === 'a') || (n >= 4 && b.dataset.tramo === 'b')));
@@ -1307,7 +1307,7 @@ function showPanel(n) {
   autoSweep();
 }
 // precarga de imágenes
-for (let n = 1; n <= 9; n++) ['antes', 'despues'].forEach(k => { const i = new Image(); i.src = `img/${pad(n)}-${k}.jpg`; });
+for (let n = 1; n <= 9; n++) ['antes', 'despues'].forEach(k => { const i = new Image(); i.src = `img/${pad(n)}-${k}${isMobile && k === 'antes' ? '-900' : ''}.webp`; });
 
 const chap = $('chapter'); let chapT = 0;
 function showChapter(n) {
@@ -1401,8 +1401,12 @@ new ResizeObserver(resize).observe(host); resize();
 const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 const vtmp = new T.Vector3();
 let last = performance.now(), tt = 0;
+/* solo dibuja cuando la maqueta está en pantalla y la pestaña visible: ahorra batería y deja el scroll fluido */
+let onScreen = true;
+if ('IntersectionObserver' in window) new IntersectionObserver(es => { onScreen = es[0].isIntersecting; }, { rootMargin: '120px 0px' }).observe(host);
 function frame(now) {
   requestAnimationFrame(frame);
+  if (!onScreen || document.hidden) { last = now; return; }
   const dt = Math.min(0.05, (now - last) / 1000); last = now; tt += dt;
   if (introPending && tt > 0.1) { startIntro(); }
   if (fly) {
@@ -1521,6 +1525,9 @@ REAL.update = function (dt, tt) {
   REAL.mixers.forEach(m => m.update(dt));
 };
 function loadRealism() {
+  /* personas y animales realistas (7,5 MB): solo en computador y nunca con ahorro de datos */
+  const nc = navigator.connection || {};
+  if (nc.saveData || isMobile) return;
   if (REAL.loading) return; REAL.loading = true;
   const s2 = document.createElement('script'); s2.src = 'realismo_assets.js'; s2.async = true;
   s2.onload = () => REAL.init().catch(e => console.warn('realismo', e));
